@@ -1,4 +1,4 @@
-@import url('https://fonts.googleapis.com/css2?family=Inter:wght@400;500;600;700;800&display=swap');
+@import url('https://fonts.googleapis.com/css2?family=Inter:wght@400;500;600;700;800;900&family=Playfair+Display:wght@600;700;800&display=swap');
 
 @tailwind base;
 @tailwind components;
@@ -12,33 +12,61 @@
 
 body {
   font-family: 'Inter', -apple-system, BlinkMacSystemFont, sans-serif;
-  background: #F8FAFC;
-  color: #1E293B;
+  background: #FAFAF8;
+  color: #1A1A1A;
   -webkit-font-smoothing: antialiased;
 }
 
-/* Scrollbar estilizada */
-::-webkit-scrollbar { width: 6px; height: 6px; }
+.font-display {
+  font-family: 'Playfair Display', Georgia, serif;
+}
+
+/* Scrollbar */
+::-webkit-scrollbar { width: 5px; height: 5px; }
 ::-webkit-scrollbar-track { background: transparent; }
-::-webkit-scrollbar-thumb { background: #CBD5E1; border-radius: 3px; }
+::-webkit-scrollbar-thumb { background: #D4AF5B; border-radius: 3px; }
 
 /* Bottom bar spacing */
 .pb-safe { padding-bottom: calc(70px + env(safe-area-inset-bottom, 0px)); }
 
-/* Gradient hero */
+/* Hero gradient - preto para dourado */
 .hero-gradient {
-  background: linear-gradient(135deg, #0D9488 0%, #2DD4BF 50%, #67E8F9 100%);
+  background: linear-gradient(135deg, #1A1A1A 0%, #2D2D2D 60%, #3D3525 100%);
 }
 
 /* Card hover */
 .card-hover {
-  transition: transform 0.2s, box-shadow 0.2s;
+  transition: transform 0.25s ease, box-shadow 0.25s ease;
 }
 .card-hover:hover {
-  transform: translateY(-2px);
-  box-shadow: 0 8px 25px rgba(0,0,0,0.1);
+  transform: translateY(-4px);
+  box-shadow: 0 12px 32px rgba(0,0,0,0.12);
 }
 
 /* Horizontal scroll sem scrollbar */
 .no-scrollbar::-webkit-scrollbar { display: none; }
 .no-scrollbar { -ms-overflow-style: none; scrollbar-width: none; }
+
+/* Gold shimmer animation */
+@keyframes shimmer {
+  0% { background-position: -200% center; }
+  100% { background-position: 200% center; }
+}
+.gold-shimmer {
+  background: linear-gradient(90deg, #C9A84C 0%, #E8D5A0 50%, #C9A84C 100%);
+  background-size: 200% auto;
+  -webkit-background-clip: text;
+  -webkit-text-fill-color: transparent;
+  animation: shimmer 3s linear infinite;
+}
+
+/* Gold border glow */
+.gold-glow {
+  box-shadow: 0 0 20px rgba(201, 168, 76, 0.15);
+}
+
+/* Floor section divider */
+.floor-divider {
+  background: linear-gradient(90deg, transparent, #C9A84C, transparent);
+  height: 1px;
+}
