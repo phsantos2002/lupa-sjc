@@ -1,7 +1,3 @@
-if (!process.env.VERCEL) {
-  const dotenv = await import('dotenv')
-  dotenv.config()
-}
 import express from 'express'
 import cors from 'cors'
 import estabelecimentosRouter from './routes/estabelecimentos.js'
