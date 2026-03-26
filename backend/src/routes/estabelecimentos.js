@@ -5,7 +5,7 @@ const router = Router()
 
 // Listar todos (com categoria)
 router.get('/', async (req, res) => {
-  const { categoria, destaque, ativo } = req.query
+  const { categoria, destaque, ativo, whatsapp } = req.query
 
   let query = supabase
     .from('estabelecimentos')
@@ -13,6 +13,7 @@ router.get('/', async (req, res) => {
     .order('destaque', { ascending: false })
     .order('nome')
 
+  if (whatsapp) query = query.eq('whatsapp', whatsapp)
   if (categoria) query = query.eq('categoria_id', categoria)
   if (destaque === 'true') query = query.eq('destaque', true)
   if (ativo !== undefined) query = query.eq('ativo', ativo === 'true')
