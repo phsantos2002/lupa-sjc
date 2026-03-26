@@ -1,4 +1,7 @@
-import 'dotenv/config'
+if (!process.env.VERCEL) {
+  const dotenv = await import('dotenv')
+  dotenv.config()
+}
 import express from 'express'
 import cors from 'cors'
 import estabelecimentosRouter from './routes/estabelecimentos.js'
@@ -9,7 +12,7 @@ import destaquesRouter from './routes/destaques.js'
 import patrocinadoresRouter from './routes/patrocinadores.js'
 import buscaRouter from './routes/busca.js'
 import homeRouter from './routes/home.js'
-import { iniciarCron } from './services/cron.js'
+let iniciarCron = () => {}
 
 const app = express()
 const PORT = process.env.PORT || 3000
@@ -54,6 +57,7 @@ export default app
 
 // Só roda o servidor se não for Vercel
 if (!process.env.VERCEL) {
+  import('./services/cron.js').then(m => { iniciarCron = m.iniciarCron })
   app.listen(PORT, () => {
     console.log(`🔍 Lupa SJC — Backend rodando na porta ${PORT}`)
     iniciarCron()
