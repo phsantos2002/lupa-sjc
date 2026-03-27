@@ -1,6 +1,6 @@
 import { useState, useEffect } from 'react'
 import { Link } from 'react-router-dom'
-import { getEstabelecimento, updateEstabelecimento, createPromocao, deletePromocao } from '../lib/api'
+import { getEstabelecimento, updateEstabelecimento, createPromocao, updatePromocao, deletePromocao } from '../lib/api'
 import FileUpload from '../components/FileUpload'
 
 const API_URL = import.meta.env.VITE_API_URL || ''
@@ -115,9 +115,10 @@ export default function Perfil() {
         ))}
       </div>
 
-      {tab === 'perfil' && <EditProfile est={est} onSave={(updated) => { setEst({ ...est, ...updated }); setSuccess('Perfil salvo!'); setTimeout(() => setSuccess(''), 3000) }} />}
-      {tab === 'ofertas' && <ManageOffers est={est} onUpdate={() => loadStore(est.slug)} />}
-      {tab === 'horarios' && <EditHours est={est} />}
+      {/* Keep all tabs mounted but hidden to preserve form state */}
+      <div className={tab === 'perfil' ? '' : 'hidden'}><EditProfile est={est} onSave={(updated) => { setEst({ ...est, ...updated }); setSuccess('Perfil salvo!'); setTimeout(() => setSuccess(''), 3000) }} /></div>
+      <div className={tab === 'ofertas' ? '' : 'hidden'}><ManageOffers est={est} onUpdate={() => loadStore(est.slug)} /></div>
+      <div className={tab === 'horarios' ? '' : 'hidden'}><EditHours est={est} /></div>
     </div>
   )
 }
@@ -162,15 +163,10 @@ function EditProfile({ est, onSave }) {
         </div>
       ))}
 
-      {/* File uploads */}
-      <FileUpload label="Upload do Logo" accept="image/*" onUpload={url => setForm({ ...form, logo_url: url })} />
-      {form.logo_url && <img src={form.logo_url} alt="Logo" className="w-16 h-16 rounded-lg object-cover border" />}
-
-      <FileUpload label="Upload da Foto de Capa" accept="image/*,video/*" onUpload={url => setForm({ ...form, banner_url: url })} />
-      {form.banner_url && <img src={form.banner_url} alt="Capa" className="w-full h-24 rounded-lg object-cover border" />}
-
-      <FileUpload label="Upload de Foto Extra" accept="image/*,video/*" onUpload={url => setForm({ ...form, foto_url: url })} />
-      {form.foto_url && <img src={form.foto_url} alt="Extra" className="w-full h-24 rounded-lg object-cover border" />}
+      {/* File uploads — preview inside FileUpload, no duplicates */}
+      <FileUpload label="Upload do Logo" accept="image/*" currentUrl={form.logo_url} onUpload={url => setForm({ ...form, logo_url: url })} />
+      <FileUpload label="Upload da Foto de Capa" accept="image/*,video/*" currentUrl={form.banner_url} onUpload={url => setForm({ ...form, banner_url: url })} />
+      <FileUpload label="Upload de Foto Extra" accept="image/*,video/*" currentUrl={form.foto_url} onUpload={url => setForm({ ...form, foto_url: url })} />
 
       <button onClick={save} disabled={saving} className="w-full py-3 bg-tauste-blue text-white font-bold rounded-xl text-sm disabled:opacity-50">
         {saving ? 'Salvando...' : 'Salvar Perfil'}
@@ -217,24 +213,43 @@ function ManageOffers({ est, onUpdate }) {
     onUpdate()
   }
 
+  const setPrincipal = async (id) => {
+    // Remove principal de todas, depois seta nesta
+    for (const o of ofertas) {
+      if (o.principal) await updatePromocao(o.id, { principal: false })
+    }
+    await updatePromocao(id, { principal: true })
+    onUpdate()
+  }
+
+  // Sort: principal first
+  const sorted = [...ofertas].sort((a, b) => (b.principal ? 1 : 0) - (a.principal ? 1 : 0))
+
   return (
     <div>
-      {/* Existing offers */}
-      {ofertas.length === 0 ? (
+      {sorted.length === 0 ? (
         <p className="text-center text-gray-400 py-6 text-sm">Nenhuma oferta criada</p>
       ) : (
         <div className="space-y-2 mb-4">
-          {ofertas.map(o => (
-            <div key={o.id} className="bg-tauste-orange/5 border border-tauste-orange/15 rounded-xl p-3 flex items-start justify-between">
-              <div>
-                <h4 className="text-sm font-bold text-lupa-black">{o.titulo}</h4>
-                {o.descricao && <p className="text-[10px] text-gray-400">{o.descricao}</p>}
+          {sorted.map(o => (
+            <div key={o.id} className={`rounded-xl p-3 flex items-start justify-between ${o.principal ? 'bg-lupa-gold/10 border-2 border-lupa-gold/30' : 'bg-tauste-orange/5 border border-tauste-orange/15'}`}>
+              <div className="min-w-0 flex-1">
+                <div className="flex items-center gap-1.5">
+                  {o.principal && <span className="text-base">👑</span>}
+                  <h4 className="text-sm font-bold text-lupa-black truncate">{o.titulo}</h4>
+                </div>
+                {o.descricao && <p className="text-[11px] text-gray-400 mt-0.5">{o.descricao}</p>}
                 <div className="flex gap-2 mt-1">
                   {o.valor_desconto && o.tipo_promo === 'percentage' && <span className="text-xs font-bold text-tauste-orange">-{o.valor_desconto}%</span>}
                   {o.preco_por && <span className="text-xs font-bold text-tauste-orange">R$ {Number(o.preco_por).toFixed(2)}</span>}
                 </div>
               </div>
-              <button onClick={() => remove(o.id)} className="text-xs text-red-400 hover:text-red-600">Remover</button>
+              <div className="flex flex-col gap-1 shrink-0 ml-2">
+                {!o.principal && (
+                  <button onClick={() => setPrincipal(o.id)} className="text-[10px] text-lupa-gold font-bold hover:underline">👑 Principal</button>
+                )}
+                <button onClick={() => remove(o.id)} className="text-[10px] text-red-400 hover:text-red-600">Remover</button>
+              </div>
             </div>
           ))}
         </div>
@@ -271,8 +286,7 @@ function ManageOffers({ est, onUpdate }) {
             <input value={form.valor_desconto} onChange={e => setForm({ ...form, valor_desconto: e.target.value })} placeholder="Valor (R$)" type="number" step="0.01" className="w-full px-3 py-2 rounded-lg border border-gray-200 text-sm" />
           )}
 
-          <FileUpload label="Foto da oferta" accept="image/*" onUpload={url => setForm({ ...form, imagem_url: url })} />
-          {form.imagem_url && <img src={form.imagem_url} alt="" className="w-full h-20 rounded-lg object-cover" />}
+          <FileUpload label="Foto da oferta" accept="image/*" currentUrl={form.imagem_url} onUpload={url => setForm({ ...form, imagem_url: url })} />
           <div>
             <label className="text-[10px] text-gray-400">Validade</label>
             <input value={form.data_fim} onChange={e => setForm({ ...form, data_fim: e.target.value })} type="date" className="w-full px-3 py-2 rounded-lg border border-gray-200 text-sm mt-1" />
