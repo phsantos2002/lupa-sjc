@@ -19,7 +19,18 @@ export default function Ofertas() {
   const [generating, setGenerating] = useState(false)
 
   useEffect(() => {
-    getPromocoes().then(setPromos).catch(console.error).finally(() => setLoading(false))
+    getPromocoes().then(data => {
+      // 1 per store, prefer principal
+      const sorted = data.sort((a, b) => (b.principal ? 1 : 0) - (a.principal ? 1 : 0))
+      const seen = new Set()
+      const unique = sorted.filter(o => {
+        const sid = o.estabelecimento_id
+        if (seen.has(sid)) return false
+        seen.add(sid)
+        return true
+      })
+      setPromos(unique)
+    }).catch(console.error).finally(() => setLoading(false))
   }, [])
 
   const filtered = filter ? promos.filter(p => p.estabelecimentos?.andar === Number(filter)) : promos

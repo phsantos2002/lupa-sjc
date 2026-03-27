@@ -127,10 +127,13 @@ export default function Home() {
                         )}
                       </div>
 
-                      {o.dias_restantes !== null && o.dias_restantes !== undefined && (
-                        <p className="text-[9px] text-gray-400 mt-1">{o.dias_restantes === 0 ? 'Expira hoje!' : `${o.dias_restantes}d restantes`}</p>
-                      )}
-                      <Link to={`/estabelecimento/${est.slug}`} className="block w-full py-1.5 mt-2 bg-tauste-blue text-white text-[10px] font-bold rounded-md text-center">
+                      <p className="text-[11px] text-gray-400 mt-1">
+                        {o.dias_restantes !== null && o.dias_restantes !== undefined
+                          ? (o.dias_restantes === 0 ? 'Expira hoje!' : `${o.dias_restantes}d restantes`)
+                          : (o.data_fim ? `Até ${new Date(o.data_fim + 'T00:00:00').toLocaleDateString('pt-BR')}` : 'Válido por tempo limitado')
+                        }
+                      </p>
+                      <Link to={`/estabelecimento/${est.slug}`} className="block w-full py-2 mt-2 bg-tauste-blue text-white text-[11px] font-bold rounded-lg text-center min-h-[36px] flex items-center justify-center">
                         Ver oferta
                       </Link>
                     </div>

@@ -272,8 +272,11 @@ function ManageOffers({ est, onUpdate }) {
               </div>
               <div className="flex gap-3 mt-2 pt-2 border-t border-gray-100">
                 <button onClick={() => openEdit(o)} className="text-[11px] text-tauste-blue font-bold">Editar</button>
-                {!o.principal && <button onClick={() => setPrincipal(o.id)} className="text-[11px] text-lupa-gold font-bold">👑 Principal</button>}
-                {o.principal && <span className="text-[11px] text-lupa-gold font-bold">👑 Principal</span>}
+                {!o.principal ? (
+                  <button onClick={() => setPrincipal(o.id)} className="text-[11px] text-gray-400 hover:text-lupa-gold">Definir principal</button>
+                ) : (
+                  <span className="text-[11px] text-lupa-gold font-bold flex items-center gap-0.5">👑 Principal</span>
+                )}
                 <button onClick={() => remove(o.id)} className="text-[11px] text-red-400 ml-auto">Remover</button>
               </div>
             </div>
