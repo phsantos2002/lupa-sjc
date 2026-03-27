@@ -7,6 +7,7 @@ import Home from './pages/Home'
 import Categorias from './pages/Categorias'
 import CategoriaDetalhe from './pages/CategoriaDetalhe'
 import Ofertas from './pages/Ofertas'
+import Lojas from './pages/Lojas'
 import Busca from './pages/Busca'
 import EstabelecimentoDetalhe from './pages/EstabelecimentoDetalhe'
 import SejaParceiro from './pages/SejaParceiro'
@@ -23,6 +24,7 @@ ReactDOM.createRoot(document.getElementById('root')).render(
         {/* App consumer */}
         <Route path="/" element={<App />}>
           <Route index element={<Home />} />
+          <Route path="lojas" element={<Lojas />} />
           <Route path="categorias" element={<Categorias />} />
           <Route path="categorias/:slug" element={<CategoriaDetalhe />} />
           <Route path="ofertas" element={<Ofertas />} />
