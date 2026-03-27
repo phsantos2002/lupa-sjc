@@ -1,6 +1,7 @@
 import { useState, useEffect } from 'react'
 import { Link } from 'react-router-dom'
 import { getEstabelecimento, updateEstabelecimento, getEstabelecimentos } from '../lib/api'
+const API_URL = import.meta.env.VITE_API_URL || ''
 import EstabelecimentoCard from '../components/EstabelecimentoCard'
 
 export default function Perfil() {
@@ -158,6 +159,7 @@ function LojistaProfile({ onLogout }) {
   const [form, setForm] = useState({})
   const [loading, setLoading] = useState(true)
   const [success, setSuccess] = useState('')
+  const [metrics, setMetrics] = useState(null)
 
   useEffect(() => {
     const saved = JSON.parse(localStorage.getItem('lupa_lojista') || '{}')
@@ -169,8 +171,10 @@ function LojistaProfile({ onLogout }) {
         .then(data => {
           if (data.length > 0) {
             const loja = data[0]
-            localStorage.setItem('lupa_lojista', JSON.stringify({ id: loja.slug, whatsapp: saved.whatsapp }))
+            localStorage.setItem('lupa_lojista', JSON.stringify({ id: loja.slug, storeId: loja.id, whatsapp: saved.whatsapp }))
             setEst(loja); setForm(loja)
+            // Load dashboard metrics
+            fetch(`${API_URL}/api/analytics/dashboard/${loja.id}`).then(r => r.json()).then(setMetrics).catch(() => {})
           }
         }).finally(() => setLoading(false))
     } else setLoading(false)
@@ -205,6 +209,38 @@ function LojistaProfile({ onLogout }) {
           <Link to={`/estabelecimento/${est.slug}`} className="text-xs text-lupa-gold">Ver página pública →</Link>
         </div>
       </div>
+
+      {/* Dashboard Metrics */}
+      {metrics && (
+        <div className="grid grid-cols-3 gap-3 mb-5">
+          {[
+            { label: 'Visualizações', value: metrics.metrics?.visualizacoes || 0, icon: '👁️' },
+            { label: 'WhatsApp', value: metrics.metrics?.whatsapp_clicks || 0, icon: '💬' },
+            { label: 'Cupons', value: metrics.metrics?.cupons_gerados || 0, icon: '🎫' },
+          ].map(m => (
+            <div key={m.label} className="bg-white rounded-xl border border-gray-100 p-3 text-center">
+              <p className="text-lg">{m.icon}</p>
+              <p className="text-xl font-bold text-lupa-black">{m.value}</p>
+              <p className="text-[10px] text-gray-400">{m.label}</p>
+            </div>
+          ))}
+        </div>
+      )}
+      {metrics && (
+        <div className="grid grid-cols-2 gap-3 mb-5">
+          {[
+            { label: 'Ligações', value: metrics.metrics?.phone_clicks || 0 },
+            { label: 'Favoritos', value: metrics.metrics?.favoritos || 0 },
+            { label: 'Compartilhamentos', value: metrics.metrics?.compartilhamentos || 0 },
+            { label: 'Cupons resgatados', value: metrics.metrics?.cupons_resgatados || 0 },
+          ].map(m => (
+            <div key={m.label} className="bg-white rounded-xl border border-gray-100 p-3 flex items-center justify-between">
+              <span className="text-xs text-gray-500">{m.label}</span>
+              <span className="font-bold text-lupa-black">{m.value}</span>
+            </div>
+          ))}
+        </div>
+      )}
 
       {!editing ? (
         <button onClick={() => setEditing(true)} className="w-full py-3 bg-lupa-gold text-lupa-black font-bold rounded-xl text-sm">Editar Perfil</button>

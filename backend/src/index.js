@@ -8,6 +8,7 @@ import destaquesRouter from './routes/destaques.js'
 import patrocinadoresRouter from './routes/patrocinadores.js'
 import buscaRouter from './routes/busca.js'
 import homeRouter from './routes/home.js'
+import analyticsRouter from './routes/analytics.js'
 let iniciarCron = () => {}
 
 const app = express()
@@ -31,6 +32,7 @@ app.use('/api/patrocinadores', patrocinadoresRouter)
 app.use('/api/estabelecimentos', estabelecimentosRouter)
 app.use('/api/promocoes', promocoesRouter)
 app.use('/api/edicoes', edicoesRouter)
+app.use('/api/analytics', analyticsRouter)
 
 // Health check
 app.get('/api/health', (req, res) => {

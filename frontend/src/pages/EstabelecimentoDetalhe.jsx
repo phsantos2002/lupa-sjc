@@ -2,6 +2,7 @@ import { useState, useEffect } from 'react'
 import { useParams, Link, useNavigate } from 'react-router-dom'
 import { getEstabelecimento } from '../lib/api'
 import { isFavorite, toggleFavorite } from '../lib/favorites'
+import { trackEvent } from '../lib/analytics'
 
 const DIAS = ['Domingo', 'Segunda', 'Terça', 'Quarta', 'Quinta', 'Sexta', 'Sábado']
 
@@ -29,7 +30,7 @@ export default function EstabelecimentoDetalhe() {
 
   useEffect(() => {
     setLoading(true)
-    getEstabelecimento(slug).then(setEst).catch(console.error).finally(() => setLoading(false))
+    getEstabelecimento(slug).then(data => { setEst(data); if (data?.id) trackEvent(data.id, 'profile_view') }).catch(console.error).finally(() => setLoading(false))
   }, [slug])
 
   if (loading) return (
