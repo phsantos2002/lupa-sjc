@@ -3,6 +3,7 @@ import { useParams, Link, useNavigate } from 'react-router-dom'
 import { getEstabelecimento } from '../lib/api'
 import { isFavorite, toggleFavorite } from '../lib/favorites'
 import { trackEvent } from '../lib/analytics'
+import { formatPrice } from '../lib/format'
 
 const DIAS = ['Domingo', 'Segunda', 'Terça', 'Quarta', 'Quinta', 'Sexta', 'Sábado']
 

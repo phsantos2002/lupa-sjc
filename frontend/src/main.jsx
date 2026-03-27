@@ -12,6 +12,7 @@ import Busca from './pages/Busca'
 import EstabelecimentoDetalhe from './pages/EstabelecimentoDetalhe'
 import SejaParceiro from './pages/SejaParceiro'
 import Perfil from './pages/Perfil'
+import NotFound from './pages/NotFound'
 import AdminEstabelecimentos from './pages/admin/AdminEstabelecimentos'
 import AdminPromocoes from './pages/admin/AdminPromocoes'
 import AdminCategorias from './pages/admin/AdminCategorias'
@@ -32,6 +33,7 @@ ReactDOM.createRoot(document.getElementById('root')).render(
           <Route path="estabelecimento/:slug" element={<EstabelecimentoDetalhe />} />
           <Route path="parceiro" element={<SejaParceiro />} />
           <Route path="perfil" element={<Perfil />} />
+          <Route path="*" element={<NotFound />} />
         </Route>
 
         {/* Admin */}

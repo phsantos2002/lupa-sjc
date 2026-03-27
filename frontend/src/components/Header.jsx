@@ -41,7 +41,7 @@ export default function Header() {
           <img src="https://krruptyxkrvdxneezqnu.supabase.co/storage/v1/object/public/logos/lupa-logo.png" alt="Lupa" className="w-9 h-9 rounded-full border-2 border-lupa-gold object-cover" onError={e => { e.target.style.display = 'none' }} />
           <div className="hidden sm:block">
             <div className="text-sm font-bold text-white leading-tight">Lupa</div>
-            <div className="text-[9px] text-lupa-gold uppercase tracking-[0.15em]">Tauste SJC</div>
+            <div className="text-[11px] text-lupa-gold uppercase tracking-[0.15em]">Tauste SJC</div>
           </div>
         </Link>
 
@@ -52,6 +52,11 @@ export default function Header() {
               <input type="text" value={search} onChange={e => setSearch(e.target.value)} onFocus={() => results.length > 0 && setShowDrop(true)} placeholder="Buscar lojas..." className="w-full pl-10 pr-4 py-2 rounded-full bg-white text-sm text-lupa-black placeholder-gray-400 focus:outline-none focus:ring-2 focus:ring-tauste-orange" />
             </div>
           </form>
+          {showDrop && search.trim().length >= 2 && results.length === 0 && (
+            <div className="absolute top-full left-0 right-0 mt-2 bg-white rounded-xl shadow-xl border border-gray-100 z-50 p-4 text-center">
+              <p className="text-sm text-gray-400">Nenhuma loja encontrada para "{search}"</p>
+            </div>
+          )}
           {showDrop && results.length > 0 && (
             <div className="absolute top-full left-0 right-0 mt-2 bg-white rounded-xl shadow-xl border border-gray-100 overflow-hidden z-50">
               <div className="p-2">
@@ -71,7 +76,7 @@ export default function Header() {
           )}
         </div>
 
-        <Link to="/parceiro" className="hidden sm:inline-flex px-4 py-2 bg-tauste-orange text-white text-xs font-bold rounded-full hover:bg-tauste-orange-light transition shrink-0">
+        <Link to="/parceiro" className="hidden sm:inline-flex px-4 py-2.5 min-h-[44px] items-center bg-tauste-orange text-white text-xs font-bold rounded-full hover:bg-tauste-orange-light transition shrink-0">
           Seja Parceiro
         </Link>
       </div>

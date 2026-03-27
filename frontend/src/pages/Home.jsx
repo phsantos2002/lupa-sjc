@@ -1,6 +1,7 @@
 import { useState, useEffect, useRef } from 'react'
 import { Link } from 'react-router-dom'
 import { getHome, getPromocoes } from '../lib/api'
+import { formatPrice } from '../lib/format'
 
 export default function Home() {
   const [data, setData] = useState(null)
@@ -83,7 +84,7 @@ export default function Home() {
               {ofertas.map(o => {
                 const est = o.estabelecimentos || {}
                 const whatsMsg = encodeURIComponent(`Olá! 👋\nVi no *Jornal Lupa SJC* a oferta:\n\n🏷️ *${o.titulo}*\n\nGostaria de aproveitar!`)
-                const whatsLink = est.whatsapp ? `https://wa.me/55${est.whatsapp?.replace(/\D/g, '')}?text=${whatsMsg}` : null
+                const offerWhatsLink = est.whatsapp ? `https://wa.me/55${est.whatsapp?.replace(/\D/g, '')}?text=${whatsMsg}` : null
                 const hasDiscount = o.valor_desconto && o.tipo_promo === 'percentage'
                 const hasPrice = o.preco_por
                 return (
@@ -109,8 +110,8 @@ export default function Home() {
                         )}
                         {hasPrice && (
                           <div className="flex items-baseline gap-1.5">
-                            {o.preco_de && <span className="text-[10px] text-gray-400 line-through">R$ {Number(o.preco_de).toFixed(2)}</span>}
-                            <span className={`font-bold text-tauste-orange ${hasDiscount ? 'text-sm' : 'text-lg'}`}>R$ {Number(o.preco_por).toFixed(2)}</span>
+                            {o.preco_de && <span className="text-[10px] text-gray-400 line-through">{formatPrice(o.preco_de)}</span>}
+                            <span className={`font-bold text-tauste-orange ${hasDiscount ? 'text-sm' : 'text-lg'}`}>{formatPrice(o.preco_por)}</span>
                           </div>
                         )}
                         {!hasDiscount && !hasPrice && o.valor_desconto && (
