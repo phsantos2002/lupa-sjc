@@ -12,7 +12,7 @@ export default function EstabelecimentoCard({ est }) {
   return (
     <div className="bg-white rounded-2xl overflow-hidden border border-gray-100 card-hover shadow-sm">
       {/* Cover */}
-      <Link to={`/estabelecimento/${est.slug}`} className="block relative h-36 bg-tauste-blue overflow-hidden">
+      <Link to={`/estabelecimento/${est.slug}`} className="block relative h-28 bg-tauste-blue overflow-hidden">
         <img src={est.banner_url || est.foto_url || placeholder} alt={est.nome} className="w-full h-full object-cover" loading="lazy" />
         <div className="absolute inset-0 bg-gradient-to-t from-black/50 via-transparent to-transparent" />
 
@@ -33,9 +33,9 @@ export default function EstabelecimentoCard({ est }) {
       </Link>
 
       {/* Info */}
-      <div className="p-3.5">
-        <Link to={`/estabelecimento/${est.slug}`} className="flex items-start gap-2.5">
-          <div className="w-11 h-11 -mt-8 rounded-xl bg-white shadow-md border-2 border-white flex items-center justify-center overflow-hidden shrink-0 relative z-10">
+      <div className="p-3">
+        <Link to={`/estabelecimento/${est.slug}`} className="flex items-start gap-2">
+          <div className="w-10 h-10 -mt-7 rounded-lg bg-white shadow-md border-2 border-white flex items-center justify-center overflow-hidden shrink-0 relative z-10">
             {est.logo_url ? <img src={est.logo_url} alt="" className="w-full h-full object-cover" /> : <span className="text-tauste-blue font-bold text-sm">{est.nome?.charAt(0)}</span>}
           </div>
           <div className="min-w-0 flex-1 pt-0.5">

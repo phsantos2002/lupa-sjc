@@ -53,29 +53,26 @@ export default function Home() {
 
   return (
     <div>
-      {/* Hero with Tauste building photo */}
-      <div className="relative overflow-hidden">
-        <img src={HERO_IMG} alt="Tauste SJC" className="w-full h-64 sm:h-80 object-cover" />
-        <div className="absolute inset-0 hero-gradient" />
-        <div className="absolute inset-0 flex flex-col justify-end px-4 pb-8">
-          <div className="max-w-5xl mx-auto w-full">
-            <div className="flex items-center gap-1.5 mb-2">
-              <img src="https://krruptyxkrvdxneezqnu.supabase.co/storage/v1/object/public/logos/lupa-logo.png" alt="" className="w-7 h-7 rounded-full border border-lupa-gold/50" onError={e => { e.target.style.display = 'none' }} />
-              <span className="text-lupa-gold text-[10px] font-bold uppercase tracking-[0.15em]">Jornal Lupa</span>
-            </div>
-            <h1 className="text-white text-2xl sm:text-4xl font-bold leading-tight">
-              Descubra as lojas do<br />
-              <span className="text-tauste-orange">Tauste São José</span>
-            </h1>
-            <p className="text-white/50 text-sm mt-2">{allStores.length} lojas em 3 andares para você explorar</p>
+      {/* Hero */}
+      <div className="relative overflow-hidden bg-tauste-blue" style={{ minHeight: '200px' }}>
+        <img src={HERO_IMG} alt="" className="absolute inset-0 w-full h-full object-cover opacity-30" onError={e => { e.target.style.display = 'none' }} />
+        <div className="relative max-w-5xl mx-auto px-4 py-8 pb-10">
+          <div className="flex items-center gap-1.5 mb-2">
+            <img src="https://krruptyxkrvdxneezqnu.supabase.co/storage/v1/object/public/logos/lupa-logo.png" alt="" className="w-6 h-6 rounded-full border border-lupa-gold/50" onError={e => { e.target.style.display = 'none' }} />
+            <span className="text-lupa-gold text-[10px] font-bold uppercase tracking-[0.15em]">Jornal Lupa</span>
           </div>
+          <h1 className="text-white text-xl sm:text-3xl font-bold leading-tight">
+            Descubra as lojas do<br />
+            <span className="text-tauste-orange">Tauste São José</span>
+          </h1>
+          <p className="text-white/50 text-xs mt-1.5">{allStores.length} lojas em 3 andares</p>
         </div>
       </div>
 
-      <div className="max-w-5xl mx-auto px-4 space-y-8 pb-8">
+      <div className="max-w-5xl mx-auto px-4 space-y-6 pb-8">
 
         {/* Filters */}
-        <section className="-mt-4 flex flex-col gap-3">
+        <section className="-mt-3 flex flex-col gap-2">
           <div className="flex items-center gap-3">
             <button onClick={() => setOpenOnly(!openOnly)} className={`flex items-center gap-1.5 px-3 py-2 text-xs font-bold rounded-full transition shadow-sm ${openOnly ? 'bg-green-500 text-white' : 'bg-white text-gray-500 border border-gray-200'}`}>
               <span className={`w-2 h-2 rounded-full ${openOnly ? 'bg-white' : 'bg-green-500'}`} />
@@ -93,7 +90,7 @@ export default function Home() {
         {/* Ofertas da Semana */}
         {ofertas.length > 0 && (
           <section>
-            <div className="flex items-center justify-between mb-4">
+            <div className="flex items-center justify-between mb-3">
               <h2 className="text-lg font-bold text-lupa-black flex items-center gap-2">
                 <span className="w-7 h-7 bg-tauste-orange/10 rounded-lg flex items-center justify-center">
                   <svg className="w-4 h-4 text-tauste-orange" fill="none" stroke="currentColor" strokeWidth={2} viewBox="0 0 24 24"><path strokeLinecap="round" strokeLinejoin="round" d="M15.362 5.214A8.252 8.252 0 0112 21 8.25 8.25 0 016.038 7.048 8.287 8.287 0 009 9.6a8.983 8.983 0 013.361-6.867 8.21 8.21 0 003 2.48z" /></svg>
@@ -151,11 +148,11 @@ export default function Home() {
           if (stores.length === 0) return null
           return (
             <section key={name} id={tag.replace(/[º\s]/g, '')}>
-              <div className="flex items-center gap-3 mb-5">
-                <div className={`w-10 h-10 rounded-xl ${color} flex items-center justify-center text-white font-bold text-lg shadow-sm`}>{icon}</div>
+              <div className="flex items-center gap-3 mb-4">
+                <div className={`w-9 h-9 rounded-lg ${color} flex items-center justify-center text-white font-bold shadow-sm`}>{icon}</div>
                 <div className="flex-1">
-                  <h2 className="text-lg font-bold text-lupa-black">{name}</h2>
-                  <p className="text-xs text-gray-400">{stores.length} lojas</p>
+                  <h2 className="text-base font-bold text-lupa-black">{name}</h2>
+                  <p className="text-[10px] text-gray-400">{stores.length} lojas</p>
                 </div>
                 <div className="flex-1 h-px bg-gradient-to-r from-gray-200 to-transparent" />
               </div>
