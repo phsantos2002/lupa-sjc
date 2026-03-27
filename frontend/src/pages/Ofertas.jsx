@@ -1,6 +1,7 @@
 import { useState, useEffect } from 'react'
 import { Link } from 'react-router-dom'
 import { getPromocoes, gerarCupom } from '../lib/api'
+import { saveCoupon } from '../lib/favorites'
 
 const FLOOR_FILTERS = [
   { label: 'Todas', value: '' },
@@ -28,6 +29,7 @@ export default function Ofertas() {
     try {
       const c = await gerarCupom({ promocao_id: promoId })
       setCoupon(c)
+      saveCoupon(c, selected?.titulo, selected?.estabelecimentos?.nome)
     } catch (err) {
       alert(err.message)
     }
