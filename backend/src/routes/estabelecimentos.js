@@ -39,15 +39,25 @@ router.get('/:idOrSlug', async (req, res) => {
   const { data, error } = await query.single()
   if (error) return res.status(404).json({ error: 'Estabelecimento não encontrado' })
 
-  // Buscar promoções ativas desse estabelecimento
-  const { data: promocoes } = await supabase
-    .from('promocoes')
-    .select('*')
-    .eq('estabelecimento_id', data.id)
-    .eq('ativo', true)
-    .order('criado_em', { ascending: false })
+  // Buscar todos os dados relacionados em paralelo
+  const [promocoes, horarios, fotos, produtos, servicos, cardapio] = await Promise.all([
+    supabase.from('promocoes').select('*').eq('estabelecimento_id', data.id).eq('ativo', true).order('criado_em', { ascending: false }),
+    supabase.from('horarios').select('*').eq('estabelecimento_id', data.id).order('dia_semana'),
+    supabase.from('fotos').select('*').eq('estabelecimento_id', data.id).order('ordem'),
+    supabase.from('produtos').select('*').eq('estabelecimento_id', data.id).eq('ativo', true).order('ordem'),
+    supabase.from('servicos').select('*').eq('estabelecimento_id', data.id).eq('ativo', true).order('ordem'),
+    supabase.from('cardapio').select('*').eq('estabelecimento_id', data.id).eq('ativo', true).order('secao').order('ordem'),
+  ])
 
-  res.json({ ...data, promocoes: promocoes || [] })
+  res.json({
+    ...data,
+    promocoes: promocoes.data || [],
+    horarios: horarios.data || [],
+    fotos: fotos.data || [],
+    produtos: produtos.data || [],
+    servicos: servicos.data || [],
+    cardapio: cardapio.data || [],
+  })
 })
 
 // Criar
