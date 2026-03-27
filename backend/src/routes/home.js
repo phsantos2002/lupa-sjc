@@ -7,7 +7,7 @@ const router = Router()
 router.get('/', async (req, res) => {
   const hoje = new Date().toISOString().split('T')[0]
 
-  const [categorias, destaqueLojas, promocoes, destaqueSemana, patrocinadores, populares] = await Promise.all([
+  const [categorias, destaqueLojas, promocoes, destaqueSemana, patrocinadores, populares, todasLojas] = await Promise.all([
     // Categorias
     supabase.from('categorias').select('*').eq('ativo', true).order('ordem'),
 
@@ -50,6 +50,12 @@ router.get('/', async (req, res) => {
       .eq('ativo', true)
       .order('criado_em', { ascending: false })
       .limit(8),
+
+    // TODAS as lojas (para exibir por piso)
+    supabase.from('estabelecimentos')
+      .select('*, categorias(nome, slug, icone, cor)')
+      .eq('ativo', true)
+      .order('nome'),
   ])
 
   res.json({
@@ -59,6 +65,7 @@ router.get('/', async (req, res) => {
     destaqueSemana: destaqueSemana.data || null,
     patrocinadores: patrocinadores.data || [],
     populares: populares.data || [],
+    todasLojas: todasLojas.data || [],
   })
 })
 

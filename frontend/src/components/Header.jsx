@@ -17,9 +17,11 @@ export default function Header() {
     <header className="bg-lupa-black sticky top-0 z-50">
       <div className="max-w-5xl mx-auto px-4 py-3 flex items-center gap-3">
         <Link to="/" className="flex items-center gap-2.5 shrink-0">
-          <div className="w-9 h-9 rounded-full border-2 border-lupa-gold flex items-center justify-center">
-            <span className="font-display text-lupa-gold text-sm font-bold">L</span>
-          </div>
+          <img
+            src="https://krruptyxkrvdxneezqnu.supabase.co/storage/v1/object/public/logos/lupa-logo.png"
+            alt="Lupa"
+            className="w-9 h-9 rounded-full border-2 border-lupa-gold object-cover"
+          />
           <div className="hidden sm:block">
             <div className="font-display text-sm font-bold text-white leading-tight tracking-wide">Lupa</div>
             <div className="text-[9px] text-lupa-gold uppercase tracking-[0.2em]">São José dos Campos</div>
