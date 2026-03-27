@@ -434,7 +434,6 @@ function OfferCardFull({ offer, store, whatsLink }) {
   const [lead, setLead] = useState({ nome: '', telefone: '' })
   const [captured, setCaptured] = useState(false)
 
-  // Check if already captured
   useEffect(() => {
     const saved = localStorage.getItem('lupa_lead')
     if (saved) { setLead(JSON.parse(saved)); setCaptured(true) }
@@ -443,10 +442,8 @@ function OfferCardFull({ offer, store, whatsLink }) {
   const handleCapture = () => {
     if (!lead.nome || !lead.telefone) return
     localStorage.setItem('lupa_lead', JSON.stringify(lead))
-    // Save lead to backend (fire and forget)
     fetch(`${import.meta.env.VITE_API_URL || ''}/api/analytics/track`, {
-      method: 'POST',
-      headers: { 'Content-Type': 'application/json' },
+      method: 'POST', headers: { 'Content-Type': 'application/json' },
       body: JSON.stringify({ estabelecimento_id: store.id, evento: 'lead_captured', metadata: { nome: lead.nome, telefone: lead.telefone, oferta: offer.titulo } }),
     }).catch(() => {})
     setCaptured(true)
@@ -454,57 +451,63 @@ function OfferCardFull({ offer, store, whatsLink }) {
   }
 
   const offerWhats = whatsLink ? `${whatsLink.split('?')[0]}?text=${encodeURIComponent(`Olá! 👋\nVi no *Jornal Lupa SJC* a oferta:\n\n🏷️ *${offer.titulo}*\n\nMeu nome: ${lead.nome}\nTelefone: ${lead.telefone}\n\nGostaria de aproveitar!`)}` : null
+  const isWhatsApp = offer.tipo_resgate !== 'local_coupon'
 
   const handleCTA = () => {
     if (!captured) { setShowLead(true); return }
-    if (offer.tipo_resgate === 'whatsapp' && offerWhats) { window.open(offerWhats, '_blank') }
-    else if (offer.tipo_resgate === 'local_coupon') { alert(`Seu cupom: LUPA${Math.random().toString(36).substring(2, 6).toUpperCase()}\nApresente na loja!`) }
-    else if (offerWhats) { window.open(offerWhats, '_blank') }
+    if (isWhatsApp && offerWhats) { window.open(offerWhats, '_blank') }
+    else { alert(`Seu cupom: LUPA${Math.random().toString(36).substring(2, 6).toUpperCase()}\nApresente na loja ${store.nome}!`) }
   }
 
   return (
-    <div className="bg-white rounded-2xl border border-gray-100 overflow-hidden shadow-sm">
-      {/* Photo */}
+    <div className="bg-white rounded-xl border border-gray-100 overflow-hidden shadow-sm">
+      {/* Photo — same size as home cards */}
       {offer.imagem_url ? (
-        <img src={offer.imagem_url} alt="" className="w-full h-40 object-cover" />
+        <img src={offer.imagem_url} alt="" className="w-full h-24 object-cover" />
       ) : (
-        <div className="w-full h-28 bg-gradient-to-br from-tauste-blue to-tauste-blue-light flex items-center justify-center">
-          {store.logo_url ? <img src={store.logo_url} alt="" className="w-14 h-14 rounded-full object-cover border-2 border-white/20" /> : <span className="text-white/30 text-3xl font-bold">{store.nome?.charAt(0)}</span>}
+        <div className="w-full h-20 bg-gradient-to-br from-tauste-blue to-tauste-blue-light flex items-center justify-center">
+          {store.logo_url ? <img src={store.logo_url} alt="" className="w-10 h-10 rounded-full object-cover border-2 border-white/20" /> : <span className="text-white/30 text-2xl font-bold">{store.nome?.charAt(0)}</span>}
         </div>
       )}
 
-      <div className="p-4">
-        {/* Title + badge */}
-        <div className="flex items-start justify-between gap-2 mb-1">
-          <h4 className="text-base font-bold text-lupa-black">{offer.titulo}</h4>
+      <div className="p-3">
+        {/* Store + badge */}
+        <div className="flex items-center gap-1.5 mb-1">
+          {store.logo_url && <img src={store.logo_url} alt="" className="w-4 h-4 rounded-full object-cover" />}
+          <span className="text-[9px] text-gray-400 truncate">{store.nome}</span>
           {offer.valor_desconto && offer.tipo_promo === 'percentage' && (
-            <span className="px-2.5 py-1 bg-tauste-orange text-white text-xs font-bold rounded-lg shrink-0">-{offer.valor_desconto}%</span>
+            <span className="ml-auto px-1.5 py-0.5 bg-tauste-orange text-white text-[9px] font-bold rounded">-{offer.valor_desconto}%</span>
           )}
         </div>
 
-        {/* Description */}
-        {offer.descricao && <p className="text-sm text-gray-500 mt-1">{offer.descricao}</p>}
+        {/* Title */}
+        <h4 className="text-xs font-bold text-lupa-black line-clamp-2 leading-tight">{offer.titulo}</h4>
+        {offer.descricao && <p className="text-[10px] text-gray-400 mt-0.5 line-clamp-2">{offer.descricao}</p>}
 
         {/* Price */}
-        {(offer.preco_de || offer.preco_por) && (
-          <div className="flex items-baseline gap-2 mt-2">
-            {offer.preco_de && <span className="text-sm text-gray-400 line-through">R$ {Number(offer.preco_de).toFixed(2)}</span>}
-            {offer.preco_por && <span className="text-xl font-bold text-tauste-orange">R$ {Number(offer.preco_por).toFixed(2)}</span>}
-          </div>
-        )}
-        {!offer.preco_por && offer.valor_desconto && offer.tipo_promo !== 'percentage' && (
-          <p className="text-xl font-bold text-tauste-orange mt-2">R$ {Number(offer.valor_desconto).toFixed(2)}</p>
-        )}
+        <div className="mt-1.5">
+          {offer.preco_por && (
+            <div className="flex items-baseline gap-1.5">
+              {offer.preco_de && <span className="text-[10px] text-gray-400 line-through">R$ {Number(offer.preco_de).toFixed(2)}</span>}
+              <span className="text-lg font-bold text-tauste-orange">R$ {Number(offer.preco_por).toFixed(2)}</span>
+            </div>
+          )}
+          {!offer.preco_por && offer.valor_desconto && offer.tipo_promo === 'percentage' && (
+            <span className="text-lg font-bold text-tauste-orange">-{offer.valor_desconto}%</span>
+          )}
+          {!offer.preco_por && offer.valor_desconto && offer.tipo_promo !== 'percentage' && (
+            <span className="text-lg font-bold text-tauste-orange">R$ {Number(offer.valor_desconto).toFixed(2)}</span>
+          )}
+        </div>
 
-        {/* Validity */}
         {offer.data_fim && (
-          <p className="text-[10px] text-gray-400 mt-2">Válido até {new Date(offer.data_fim + 'T00:00:00').toLocaleDateString('pt-BR')}</p>
+          <p className="text-[9px] text-gray-400 mt-1">{(() => { const d = Math.ceil((new Date(offer.data_fim) - new Date()) / 86400000); return d <= 0 ? 'Expira hoje!' : `${d}d restantes` })()}</p>
         )}
 
-        {/* CTA Button */}
-        <button onClick={handleCTA} className="flex items-center justify-center gap-2 mt-3 py-3 bg-green-500 text-white text-sm font-bold rounded-xl w-full hover:bg-green-600 transition">
-          <svg className="w-4 h-4" fill="currentColor" viewBox="0 0 24 24"><path d="M17.472 14.382c-.297-.149-1.758-.867-2.03-.967-.273-.099-.471-.148-.67.15-.197.297-.767.966-.94 1.164-.173.199-.347.223-.644.075-.297-.15-1.255-.463-2.39-1.475-.883-.788-1.48-1.761-1.653-2.059-.173-.297-.018-.458.13-.606.134-.133.298-.347.446-.52.149-.174.198-.298.298-.497.099-.198.05-.371-.025-.52-.075-.149-.669-1.612-.916-2.207-.242-.579-.487-.5-.669-.51l-.57-.01c-.198 0-.52.074-.792.372-.272.297-1.04 1.016-1.04 2.479 0 1.462 1.065 2.875 1.213 3.074.149.198 2.096 3.2 5.077 4.487.709.306 1.262.489 1.694.625.712.227 1.36.195 1.871.118.571-.085 1.758-.719 2.006-1.413.248-.694.248-1.289.173-1.413-.074-.124-.272-.198-.57-.347z" /></svg>
-          Quero essa oferta
+        {/* CTA — pulsing green after capture */}
+        <button onClick={handleCTA} className={`flex items-center justify-center gap-2 mt-2 py-2 w-full text-white text-[11px] font-bold rounded-lg transition ${captured ? 'bg-green-500 pulse-green' : 'bg-green-500 hover:bg-green-600'}`}>
+          <svg className="w-3.5 h-3.5" fill="currentColor" viewBox="0 0 24 24"><path d="M17.472 14.382c-.297-.149-1.758-.867-2.03-.967-.273-.099-.471-.148-.67.15-.197.297-.767.966-.94 1.164-.173.199-.347.223-.644.075-.297-.15-1.255-.463-2.39-1.475-.883-.788-1.48-1.761-1.653-2.059-.173-.297-.018-.458.13-.606.134-.133.298-.347.446-.52.149-.174.198-.298.298-.497.099-.198.05-.371-.025-.52-.075-.149-.669-1.612-.916-2.207-.242-.579-.487-.5-.669-.51l-.57-.01c-.198 0-.52.074-.792.372-.272.297-1.04 1.016-1.04 2.479 0 1.462 1.065 2.875 1.213 3.074.149.198 2.096 3.2 5.077 4.487.709.306 1.262.489 1.694.625.712.227 1.36.195 1.871.118.571-.085 1.758-.719 2.006-1.413.248-.694.248-1.289.173-1.413-.074-.124-.272-.198-.57-.347z" /></svg>
+          {captured ? (isWhatsApp ? 'Chamar agora' : 'Acessar cupom') : 'Quero essa oferta'}
         </button>
 
         {/* Lead capture modal */}
@@ -514,7 +517,6 @@ function OfferCardFull({ offer, store, whatsLink }) {
             <div className="relative bg-white rounded-t-2xl sm:rounded-2xl w-full sm:max-w-sm p-5" onClick={e => e.stopPropagation()}>
               <h3 className="text-lg font-bold text-lupa-black text-center mb-1">Quase lá!</h3>
               <p className="text-xs text-gray-400 text-center mb-4">Informe seus dados para acessar a oferta</p>
-
               <div className="space-y-3">
                 <div>
                   <label className="text-[10px] text-gray-500 uppercase tracking-wider">Seu nome</label>
@@ -525,10 +527,7 @@ function OfferCardFull({ offer, store, whatsLink }) {
                   <input value={lead.telefone} onChange={e => setLead({ ...lead, telefone: e.target.value })} placeholder="(12) 99999-9999" className="w-full px-3 py-2.5 rounded-xl border border-gray-200 text-sm mt-1" />
                 </div>
               </div>
-
-              <button onClick={handleCapture} disabled={!lead.nome || !lead.telefone} className="w-full py-3 bg-green-500 text-white font-bold rounded-xl text-sm mt-4 disabled:opacity-50 hover:bg-green-600 transition">
-                Acessar oferta
-              </button>
+              <button onClick={handleCapture} disabled={!lead.nome || !lead.telefone} className="w-full py-3 bg-green-500 text-white font-bold rounded-xl text-sm mt-4 disabled:opacity-50">Acessar oferta</button>
               <p className="text-[9px] text-gray-400 text-center mt-2">Seus dados serão usados apenas para enviar ofertas relevantes</p>
             </div>
           </div>
