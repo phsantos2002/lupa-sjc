@@ -4,17 +4,13 @@ export default {
   theme: {
     extend: {
       colors: {
-        primary: {
-          50: '#FBF8F0',
-          100: '#F5EDD6',
-          200: '#EBDAAD',
-          300: '#DFC47F',
-          400: '#D4AF5B',
-          500: '#C9A84C',
-          600: '#B08E3A',
-          700: '#8F7230',
-          800: '#6B5524',
-          900: '#4A3B19',
+        tauste: {
+          blue: '#1B2A6B',
+          'blue-dark': '#0F1A4A',
+          'blue-light': '#2E3F8E',
+          orange: '#F5841F',
+          'orange-light': '#FF9B3D',
+          'orange-dark': '#D96D0A',
         },
         lupa: {
           gold: '#C9A84C',
@@ -22,8 +18,20 @@ export default {
           'gold-dark': '#A6832A',
           black: '#1A1A1A',
           dark: '#2D2D2D',
-          bg: '#FAFAF8',
-          cream: '#F5F1EB',
+          bg: '#F7F8FA',
+          cream: '#F0F1F5',
+        },
+        primary: {
+          50: '#EEF0F9',
+          100: '#D5DAF0',
+          200: '#ABB5E1',
+          300: '#8190D2',
+          400: '#576BC3',
+          500: '#1B2A6B',
+          600: '#162259',
+          700: '#111A47',
+          800: '#0C1235',
+          900: '#070A23',
         },
       },
       fontFamily: {

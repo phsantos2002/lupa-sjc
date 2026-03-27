@@ -4,50 +4,39 @@
 @tailwind components;
 @tailwind utilities;
 
-* {
-  margin: 0;
-  padding: 0;
-  box-sizing: border-box;
-}
+* { margin: 0; padding: 0; box-sizing: border-box; }
 
 body {
   font-family: 'DM Sans', -apple-system, BlinkMacSystemFont, sans-serif;
-  background: #FAFAF8;
+  background: #F7F8FA;
   color: #1A1A1A;
   -webkit-font-smoothing: antialiased;
 }
 
-.font-display {
-  font-family: 'DM Serif Display', Georgia, serif;
-}
+.font-display { font-family: 'DM Serif Display', Georgia, serif; }
 
-/* Scrollbar */
 ::-webkit-scrollbar { width: 5px; height: 5px; }
 ::-webkit-scrollbar-track { background: transparent; }
-::-webkit-scrollbar-thumb { background: #D4AF5B; border-radius: 3px; }
+::-webkit-scrollbar-thumb { background: #1B2A6B; border-radius: 3px; }
 
-/* Bottom bar spacing */
 .pb-safe { padding-bottom: calc(70px + env(safe-area-inset-bottom, 0px)); }
 
-/* Hero gradient - preto para dourado */
+/* Hero — Tauste blue overlay on photo */
 .hero-gradient {
-  background: linear-gradient(135deg, #1A1A1A 0%, #2D2D2D 60%, #3D3525 100%);
+  background: linear-gradient(180deg, rgba(15,26,74,0.85) 0%, rgba(27,42,107,0.75) 50%, rgba(27,42,107,0.95) 100%);
 }
 
-/* Card hover */
 .card-hover {
-  transition: transform 0.25s ease, box-shadow 0.25s ease;
+  transition: transform 0.2s ease, box-shadow 0.2s ease;
 }
 .card-hover:hover {
-  transform: translateY(-4px);
-  box-shadow: 0 12px 32px rgba(0,0,0,0.12);
+  transform: translateY(-3px);
+  box-shadow: 0 8px 24px rgba(27,42,107,0.12);
 }
 
-/* Horizontal scroll sem scrollbar */
 .no-scrollbar::-webkit-scrollbar { display: none; }
 .no-scrollbar { -ms-overflow-style: none; scrollbar-width: none; }
 
-/* Gold shimmer animation */
 @keyframes shimmer {
   0% { background-position: -200% center; }
   100% { background-position: 200% center; }
@@ -60,13 +49,9 @@ body {
   animation: shimmer 3s linear infinite;
 }
 
-/* Gold border glow */
-.gold-glow {
-  box-shadow: 0 0 20px rgba(201, 168, 76, 0.15);
-}
+.gold-glow { box-shadow: 0 0 15px rgba(201, 168, 76, 0.12); }
 
-/* Floor section divider */
 .floor-divider {
-  background: linear-gradient(90deg, transparent, #C9A84C, transparent);
+  background: linear-gradient(90deg, transparent, #F5841F, transparent);
   height: 1px;
 }
