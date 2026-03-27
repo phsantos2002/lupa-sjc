@@ -19,6 +19,8 @@ export default function Home() {
   const [data, setData] = useState(null)
   const [loading, setLoading] = useState(true)
   const [ofertas, setOfertas] = useState([])
+  const [catFilter, setCatFilter] = useState('all')
+  const [openOnly, setOpenOnly] = useState(false)
   const promoRef = useRef(null)
 
   useEffect(() => {
@@ -37,7 +39,16 @@ export default function Home() {
   const promos = data.promocoes?.length > 0 ? data.promocoes : defaultPromos
   const allStores = data.todasLojas || []
 
-  const getStoresByFloor = (tag) => allStores.filter(est => est.tags?.includes(tag))
+  // Unique subcategories for filter
+  const subcats = [...new Set(allStores.map(s => s.subcategoria).filter(Boolean))].sort()
+  const openCount = allStores.filter(s => s.aberto_agora).length
+
+  const getStoresByFloor = (tag) => {
+    let stores = allStores.filter(est => est.tags?.includes(tag))
+    if (catFilter !== 'all') stores = stores.filter(s => s.subcategoria === catFilter)
+    if (openOnly) stores = stores.filter(s => s.aberto_agora)
+    return stores
+  }
 
   const scrollPromo = (dir) => {
     if (!promoRef.current) return
@@ -64,6 +75,22 @@ export default function Home() {
           <p className="text-white/40 mt-3 text-sm">
             {allStores.length} lojas em 3 andares para você explorar
           </p>
+
+          {/* Mini floor map */}
+          <div className="mt-6 flex flex-col gap-1.5 max-w-xs">
+            {[...floors].reverse().map(f => {
+              const count = allStores.filter(s => s.tags?.includes(f.tag)).length
+              return (
+                <button key={f.name} onClick={() => document.getElementById(f.tag.replace(/[º\s]/g, ''))?.scrollIntoView({ behavior: 'smooth', block: 'start' })} className="flex items-center justify-between px-3 py-2 bg-white/10 hover:bg-white/20 backdrop-blur rounded-lg transition text-left">
+                  <div className="flex items-center gap-2">
+                    <span className={`w-6 h-6 rounded bg-gradient-to-br ${f.gradient} flex items-center justify-center text-white text-[10px] font-bold`}>{f.icon}</span>
+                    <span className="text-white text-xs font-medium">{f.name}</span>
+                  </div>
+                  <span className="text-white/40 text-[10px]">{count} lojas →</span>
+                </button>
+              )
+            })}
+          </div>
         </div>
       </div>
 
@@ -105,6 +132,25 @@ export default function Home() {
             <button onClick={() => scrollPromo(1)} className="absolute -right-3 top-1/2 -translate-y-1/2 z-10 w-8 h-8 bg-white shadow-lg rounded-full items-center justify-center text-lupa-gold hidden sm:flex border border-gray-100">
               <svg className="w-4 h-4" fill="none" stroke="currentColor" strokeWidth={2} viewBox="0 0 24 24"><path strokeLinecap="round" strokeLinejoin="round" d="M9 5l7 7-7 7" /></svg>
             </button>
+          </div>
+        </section>
+
+        {/* Filters: Open now + Category */}
+        <section className="flex flex-col gap-3">
+          <div className="flex items-center gap-3">
+            <button
+              onClick={() => setOpenOnly(!openOnly)}
+              className={`flex items-center gap-1.5 px-3 py-2 text-xs font-bold rounded-full transition ${openOnly ? 'bg-green-500 text-white' : 'bg-lupa-cream text-gray-500'}`}
+            >
+              <span className={`w-2 h-2 rounded-full ${openOnly ? 'bg-white' : 'bg-green-500'}`} />
+              Aberto agora {openCount > 0 && `(${openCount})`}
+            </button>
+          </div>
+          <div className="flex gap-2 overflow-x-auto no-scrollbar">
+            <button onClick={() => setCatFilter('all')} className={`px-3 py-1.5 text-[11px] font-bold rounded-full whitespace-nowrap transition ${catFilter === 'all' ? 'bg-lupa-black text-white' : 'bg-lupa-cream text-gray-500'}`}>Todas</button>
+            {subcats.map(c => (
+              <button key={c} onClick={() => setCatFilter(c)} className={`px-3 py-1.5 text-[11px] font-bold rounded-full whitespace-nowrap transition ${catFilter === c ? 'bg-lupa-black text-white' : 'bg-lupa-cream text-gray-500'}`}>{c}</button>
+            ))}
           </div>
         </section>
 
@@ -154,7 +200,7 @@ export default function Home() {
           if (stores.length === 0) return null
 
           return (
-            <section key={name}>
+            <section key={name} id={tag.replace(/[º\s]/g, '')}>
               {/* Floor header */}
               <div className="flex items-center gap-3 mb-5">
                 <div className={`w-11 h-11 rounded-xl bg-gradient-to-br ${gradient} flex items-center justify-center text-white font-bold text-lg shadow-md`}>
