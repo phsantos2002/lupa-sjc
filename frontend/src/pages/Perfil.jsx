@@ -174,7 +174,7 @@ function EditProfile({ est, onSave }) {
 function ManageOffers({ est, onUpdate }) {
   const ofertas = (est.promocoes || []).filter(p => p.ativo !== false)
   const [showForm, setShowForm] = useState(false)
-  const [form, setForm] = useState({ titulo: '', descricao: '', tipo_promo: 'percentage', valor_desconto: '', preco_de: '', preco_por: '', data_fim: '', tipo_resgate: 'whatsapp' })
+  const [form, setForm] = useState({ titulo: '', descricao: '', tipo_promo: 'percentage', valor_desconto: '', preco_de: '', preco_por: '', data_fim: '', tipo_resgate: 'whatsapp', imagem_url: '' })
   const [saving, setSaving] = useState(false)
 
   const create = async () => {
@@ -191,6 +191,7 @@ function ManageOffers({ est, onUpdate }) {
         preco_por: form.preco_por ? Number(form.preco_por) : null,
         data_fim: form.data_fim || null,
         tipo_resgate: form.tipo_resgate,
+        imagem_url: form.imagem_url || null,
         ativo: true,
         destaque_home: true,
       })
@@ -261,7 +262,14 @@ function ManageOffers({ est, onUpdate }) {
             <input value={form.valor_desconto} onChange={e => setForm({ ...form, valor_desconto: e.target.value })} placeholder="Valor (R$)" type="number" step="0.01" className="w-full px-3 py-2 rounded-lg border border-gray-200 text-sm" />
           )}
 
-          <input value={form.data_fim} onChange={e => setForm({ ...form, data_fim: e.target.value })} type="date" className="w-full px-3 py-2 rounded-lg border border-gray-200 text-sm" />
+          <div>
+            <label className="text-[10px] text-gray-400">Foto da oferta (URL)</label>
+            <input value={form.imagem_url} onChange={e => setForm({ ...form, imagem_url: e.target.value })} placeholder="https://..." className="w-full px-3 py-2 rounded-lg border border-gray-200 text-sm mt-1" />
+          </div>
+          <div>
+            <label className="text-[10px] text-gray-400">Validade</label>
+            <input value={form.data_fim} onChange={e => setForm({ ...form, data_fim: e.target.value })} type="date" className="w-full px-3 py-2 rounded-lg border border-gray-200 text-sm mt-1" />
+          </div>
 
           <div>
             <label className="text-[10px] text-gray-400">Resgate</label>
