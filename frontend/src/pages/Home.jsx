@@ -1,7 +1,7 @@
 import { useState, useEffect, useRef } from 'react'
 import { Link } from 'react-router-dom'
 import { getHome, getPromocoes } from '../lib/api'
-import { formatPrice } from '../lib/format'
+import OfferCard from '../components/OfferCard'
 
 export default function Home() {
   const [data, setData] = useState(null)
@@ -89,57 +89,7 @@ export default function Home() {
             if (unique.length === 0) return <p className="text-center text-gray-400 py-6 text-sm">Nenhuma oferta disponível no momento</p>
             return (
             <div className="grid grid-cols-2 gap-3">
-              {unique.map(o => {
-                const est = o.estabelecimentos || {}
-                const whatsMsg = encodeURIComponent(`Olá! 👋\nVi no *Jornal Lupa SJC* a oferta:\n\n🏷️ *${o.titulo}*\n\nGostaria de aproveitar!`)
-                const offerWhatsLink = est.whatsapp ? `https://wa.me/55${est.whatsapp?.replace(/\D/g, '')}?text=${whatsMsg}` : null
-                const hasDiscount = o.valor_desconto && o.tipo_promo === 'percentage'
-                const hasPrice = o.preco_por
-                return (
-                  <div key={o.id} className="bg-white rounded-xl border border-gray-100 overflow-hidden shadow-sm card-hover">
-                    {o.imagem_url ? (
-                      <img src={o.imagem_url} alt="" className="w-full h-24 object-cover" loading="lazy" />
-                    ) : (
-                      <div className="w-full h-20 bg-gradient-to-br from-tauste-blue to-tauste-blue-light flex items-center justify-center">
-                        {est.logo_url ? <img src={est.logo_url} alt="" className="w-10 h-10 rounded-full object-cover border-2 border-white/20" /> : <span className="text-white/40 text-xl font-bold">{est.nome?.charAt(0)}</span>}
-                      </div>
-                    )}
-                    <div className="p-2.5">
-                      <div className="flex items-center gap-1.5 mb-1">
-                        {est.logo_url && <img src={est.logo_url} alt="" className="w-4 h-4 rounded-full object-cover" />}
-                        <span className="text-[9px] text-gray-400 truncate">{est.nome}</span>
-                      </div>
-                      <h3 className="text-xs font-bold text-lupa-black line-clamp-2 leading-tight">{o.titulo}</h3>
-
-                      {/* Price/Discount — always in orange */}
-                      <div className="mt-1.5">
-                        {hasDiscount && (
-                          <span className="text-lg font-bold text-tauste-orange">-{o.valor_desconto}%</span>
-                        )}
-                        {hasPrice && (
-                          <div className="flex items-baseline gap-1.5">
-                            {o.preco_de && <span className="text-[10px] text-gray-400 line-through">{formatPrice(o.preco_de)}</span>}
-                            <span className={`font-bold text-tauste-orange ${hasDiscount ? 'text-sm' : 'text-lg'}`}>{formatPrice(o.preco_por)}</span>
-                          </div>
-                        )}
-                        {!hasDiscount && !hasPrice && o.valor_desconto && (
-                          <span className="text-lg font-bold text-tauste-orange">R$ {Number(o.valor_desconto).toFixed(2)}</span>
-                        )}
-                      </div>
-
-                      <p className="text-[11px] text-gray-400 mt-1">
-                        {o.dias_restantes !== null && o.dias_restantes !== undefined
-                          ? (o.dias_restantes === 0 ? 'Expira hoje!' : `${o.dias_restantes}d restantes`)
-                          : (o.data_fim ? `Até ${new Date(o.data_fim + 'T00:00:00').toLocaleDateString('pt-BR')}` : 'Válido por tempo limitado')
-                        }
-                      </p>
-                      <Link to={`/estabelecimento/${est.slug}`} className="block w-full py-2 mt-2 bg-tauste-blue text-white text-[11px] font-bold rounded-lg text-center min-h-[36px] flex items-center justify-center">
-                        Ver oferta
-                      </Link>
-                    </div>
-                  </div>
-                )
-              })}
+              {unique.map(o => <OfferCard key={o.id} offer={o} />)}
             </div>
             )
           })()}

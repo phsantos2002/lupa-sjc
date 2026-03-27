@@ -152,7 +152,7 @@ export default function EstabelecimentoDetalhe() {
           <h3 className="text-sm font-bold text-lupa-black mb-3">Ofertas desta loja</h3>
           <div className="grid grid-cols-2 gap-3">
             {est.promocoes.filter(p => p.ativo !== false).sort((a, b) => (b.principal ? 1 : 0) - (a.principal ? 1 : 0)).slice(0, 20).map(p => (
-              <OfferCardFull key={p.id} offer={p} store={est} whatsLink={whatsLink} />
+              <OfferCardProfile key={p.id} offer={p} store={est} whatsLink={whatsLink} />
             ))}
           </div>
         </div>
@@ -413,7 +413,7 @@ function FavButton({ storeId }) {
 }
 
 // ===== OFFER CARD FULL (with lead capture) =====
-function OfferCardFull({ offer, store, whatsLink }) {
+function OfferCardProfile({ offer, store, whatsLink }) {
   const [showLead, setShowLead] = useState(false)
   const [lead, setLead] = useState({ nome: '', telefone: '' })
   const [captured, setCaptured] = useState(false)
@@ -443,56 +443,48 @@ function OfferCardFull({ offer, store, whatsLink }) {
     else { alert(`Seu cupom: LUPA${Math.random().toString(36).substring(2, 6).toUpperCase()}\nApresente na loja ${store.nome}!`) }
   }
 
+  const validity = offer.data_fim ? (() => { const d = Math.ceil((new Date(offer.data_fim) - new Date()) / 86400000); return d <= 0 ? 'Expira hoje!' : `${d}d restantes` })() : 'Válido por tempo limitado'
+
   return (
-    <div className="bg-white rounded-xl border border-gray-100 overflow-hidden shadow-sm">
-      {/* Photo — same size as home cards */}
-      {offer.imagem_url ? (
-        <img src={offer.imagem_url} alt="" className="w-full h-24 object-cover" />
-      ) : (
-        <div className="w-full h-20 bg-gradient-to-br from-tauste-blue to-tauste-blue-light flex items-center justify-center">
-          {store.logo_url ? <img src={store.logo_url} alt="" className="w-10 h-10 rounded-full object-cover border-2 border-white/20" /> : <span className="text-white/30 text-2xl font-bold">{store.nome?.charAt(0)}</span>}
-        </div>
-      )}
+    <div className="bg-white rounded-xl border border-gray-100 overflow-hidden shadow-sm flex flex-col" style={{ minHeight: '280px' }}>
+      {/* Cover — fixed h-28 */}
+      <div className="relative h-28 bg-tauste-blue shrink-0">
+        {offer.imagem_url ? (
+          <img src={offer.imagem_url} alt="" className="w-full h-full object-cover" loading="lazy" />
+        ) : (
+          <div className="w-full h-full bg-gradient-to-br from-tauste-blue to-tauste-blue-light flex items-center justify-center">
+            {store.logo_url ? <img src={store.logo_url} alt="" className="w-12 h-12 rounded-full object-cover border-2 border-white/20" /> : <span className="text-white/30 text-2xl font-bold">{store.nome?.charAt(0)}</span>}
+          </div>
+        )}
+        {offer.principal && <span className="absolute top-2 left-2 text-lg">👑</span>}
+        {offer.valor_desconto && offer.tipo_promo === 'percentage' && (
+          <span className="absolute top-2 right-2 px-2 py-0.5 bg-tauste-orange text-white text-[10px] font-bold rounded">-{offer.valor_desconto}%</span>
+        )}
+      </div>
 
-      <div className="p-3">
-        {/* Store + badge */}
-        <div className="flex items-center gap-1.5 mb-1">
-          {store.logo_url && <img src={store.logo_url} alt="" className="w-4 h-4 rounded-full object-cover" />}
-          <span className="text-[9px] text-gray-400 truncate">{store.nome}</span>
-          {offer.valor_desconto && offer.tipo_promo === 'percentage' && (
-            <span className="ml-auto px-1.5 py-0.5 bg-tauste-orange text-white text-[9px] font-bold rounded">-{offer.valor_desconto}%</span>
-          )}
-        </div>
+      {/* Content */}
+      <div className="p-3 flex flex-col flex-1">
+        <h4 className="text-xs font-bold text-lupa-black line-clamp-2 leading-tight min-h-[32px]">{offer.titulo}</h4>
+        {offer.descricao && <p className="text-[10px] text-gray-400 line-clamp-1 mt-0.5">{offer.descricao}</p>}
 
-        {/* Title */}
-        <h4 className="text-xs font-bold text-lupa-black line-clamp-2 leading-tight">{offer.titulo}</h4>
-        {offer.descricao && <p className="text-[10px] text-gray-400 mt-0.5 line-clamp-2">{offer.descricao}</p>}
-
-        {/* Price */}
-        <div className="mt-1.5">
+        <div className="mt-auto pt-1.5">
           {offer.preco_por && (
             <div className="flex items-baseline gap-1.5">
               {offer.preco_de && <span className="text-[10px] text-gray-400 line-through">R$ {Number(offer.preco_de).toFixed(2)}</span>}
-              <span className="text-lg font-bold text-tauste-orange">R$ {Number(offer.preco_por).toFixed(2)}</span>
+              <span className="text-sm font-bold text-tauste-orange">R$ {Number(offer.preco_por).toFixed(2)}</span>
             </div>
           )}
           {!offer.preco_por && offer.valor_desconto && offer.tipo_promo === 'percentage' && (
             <span className="text-lg font-bold text-tauste-orange">-{offer.valor_desconto}%</span>
           )}
-          {!offer.preco_por && offer.valor_desconto && offer.tipo_promo !== 'percentage' && (
-            <span className="text-lg font-bold text-tauste-orange">R$ {Number(offer.valor_desconto).toFixed(2)}</span>
-          )}
+          <p className="text-[10px] text-gray-400 mt-0.5">{validity}</p>
+
+          {/* CTA — WhatsApp logo white */}
+          <button onClick={handleCTA} className={`flex items-center justify-center gap-1.5 mt-2 py-2 w-full text-white text-[11px] font-bold rounded-lg min-h-[36px] transition ${captured ? 'bg-[#075E54] pulse-green' : 'bg-[#075E54]'}`}>
+            <svg className="w-4 h-4" fill="white" viewBox="0 0 24 24"><path d="M17.472 14.382c-.297-.149-1.758-.867-2.03-.967-.273-.099-.471-.148-.67.15-.197.297-.767.966-.94 1.164-.173.199-.347.223-.644.075-.297-.15-1.255-.463-2.39-1.475-.883-.788-1.48-1.761-1.653-2.059-.173-.297-.018-.458.13-.606.134-.133.298-.347.446-.52.149-.174.198-.298.298-.497.099-.198.05-.371-.025-.52-.075-.149-.669-1.612-.916-2.207-.242-.579-.487-.5-.669-.51l-.57-.01c-.198 0-.52.074-.792.372-.272.297-1.04 1.016-1.04 2.479 0 1.462 1.065 2.875 1.213 3.074.149.198 2.096 3.2 5.077 4.487.709.306 1.262.489 1.694.625.712.227 1.36.195 1.871.118.571-.085 1.758-.719 2.006-1.413.248-.694.248-1.289.173-1.413-.074-.124-.272-.198-.57-.347z"/><path d="M12 0C5.373 0 0 5.373 0 12c0 2.116.553 4.1 1.519 5.826L.053 23.664l5.96-1.56A11.93 11.93 0 0012 24c6.627 0 12-5.373 12-12S18.627 0 12 0zm0 21.82c-1.965 0-3.83-.528-5.47-1.528l-.392-.233-3.538.927.944-3.45-.256-.406A9.794 9.794 0 012.18 12c0-5.422 4.398-9.82 9.82-9.82 5.422 0 9.82 4.398 9.82 9.82 0 5.422-4.398 9.82-9.82 9.82z"/></svg>
+            {captured ? (isWhatsApp ? 'Aproveitar oferta' : 'Acessar cupom') : 'Quero essa oferta'}
+          </button>
         </div>
-
-        {offer.data_fim && (
-          <p className="text-[9px] text-gray-400 mt-1">{(() => { const d = Math.ceil((new Date(offer.data_fim) - new Date()) / 86400000); return d <= 0 ? 'Expira hoje!' : `${d}d restantes` })()}</p>
-        )}
-
-        {/* CTA — pulsing green after capture */}
-        <button onClick={handleCTA} className={`flex items-center justify-center gap-2 mt-2 py-2 w-full text-white text-[11px] font-bold rounded-lg transition ${captured ? 'bg-[#075E54] pulse-green' : 'bg-[#075E54] hover:bg-green-600'}`}>
-          <svg className="w-3.5 h-3.5" fill="currentColor" viewBox="0 0 24 24"><path d="M17.472 14.382c-.297-.149-1.758-.867-2.03-.967-.273-.099-.471-.148-.67.15-.197.297-.767.966-.94 1.164-.173.199-.347.223-.644.075-.297-.15-1.255-.463-2.39-1.475-.883-.788-1.48-1.761-1.653-2.059-.173-.297-.018-.458.13-.606.134-.133.298-.347.446-.52.149-.174.198-.298.298-.497.099-.198.05-.371-.025-.52-.075-.149-.669-1.612-.916-2.207-.242-.579-.487-.5-.669-.51l-.57-.01c-.198 0-.52.074-.792.372-.272.297-1.04 1.016-1.04 2.479 0 1.462 1.065 2.875 1.213 3.074.149.198 2.096 3.2 5.077 4.487.709.306 1.262.489 1.694.625.712.227 1.36.195 1.871.118.571-.085 1.758-.719 2.006-1.413.248-.694.248-1.289.173-1.413-.074-.124-.272-.198-.57-.347z" /></svg>
-          {captured ? (isWhatsApp ? 'Aproveitar oferta' : 'Acessar cupom') : 'Quero essa oferta'}
-        </button>
 
         {/* Lead capture modal */}
         {showLead && (
@@ -503,15 +495,15 @@ function OfferCardFull({ offer, store, whatsLink }) {
               <p className="text-xs text-gray-400 text-center mb-4">Informe seus dados para acessar a oferta</p>
               <div className="space-y-3">
                 <div>
-                  <label className="text-[10px] text-gray-500 uppercase tracking-wider">Seu nome</label>
+                  <label className="text-[11px] text-gray-500 uppercase tracking-wider">Seu nome</label>
                   <input value={lead.nome} onChange={e => setLead({ ...lead, nome: e.target.value })} placeholder="Como podemos te chamar?" className="w-full px-3 py-2.5 rounded-xl border border-gray-200 text-sm mt-1" />
                 </div>
                 <div>
-                  <label className="text-[10px] text-gray-500 uppercase tracking-wider">WhatsApp</label>
+                  <label className="text-[11px] text-gray-500 uppercase tracking-wider">WhatsApp</label>
                   <input value={lead.telefone} onChange={e => setLead({ ...lead, telefone: e.target.value })} placeholder="(12) 99999-9999" className="w-full px-3 py-2.5 rounded-xl border border-gray-200 text-sm mt-1" />
                 </div>
               </div>
-              <button onClick={handleCapture} disabled={!lead.nome || !lead.telefone} className="w-full py-3 bg-[#075E54] text-white font-bold rounded-xl text-sm mt-4 disabled:opacity-50">Acessar oferta</button>
+              <button onClick={handleCapture} disabled={!lead.nome || !lead.telefone} className="w-full py-3 bg-[#075E54] text-white font-bold rounded-xl text-sm mt-4 disabled:opacity-50 min-h-[44px]">Acessar oferta</button>
               <p className="text-[9px] text-gray-400 text-center mt-2">Seus dados serão usados apenas para enviar ofertas relevantes</p>
             </div>
           </div>
