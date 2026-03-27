@@ -99,6 +99,23 @@ router.put('/:id', async (req, res) => {
   res.json(data)
 })
 
+// Login da loja
+router.post('/login', async (req, res) => {
+  const { slug, senha } = req.body
+  if (!slug || !senha) return res.status(400).json({ error: 'slug e senha obrigatórios' })
+
+  const { data, error } = await supabase
+    .from('estabelecimentos')
+    .select('id, slug, nome, logo_url, senha')
+    .eq('slug', slug)
+    .single()
+
+  if (error || !data) return res.status(401).json({ error: 'Loja não encontrada' })
+  if (data.senha !== senha) return res.status(401).json({ error: 'Senha incorreta' })
+
+  res.json({ id: data.id, slug: data.slug, nome: data.nome, logo_url: data.logo_url })
+})
+
 // Deletar
 router.delete('/:id', async (req, res) => {
   const { error } = await supabase

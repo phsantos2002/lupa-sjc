@@ -50,13 +50,11 @@ export default function EstabelecimentoDetalhe() {
   const placeholder = `https://ui-avatars.com/api/?name=${encodeURIComponent(est.nome)}&size=800&background=1B2A6B&color=fff&font-size=0.25`
 
   // Determine which content tabs to show
-  const promoCount = est.promocoes?.length || 0
   const tabs = [{ id: 'sobre', label: 'Sobre' }]
   if (est.tipo_negocio === 'food' && est.cardapio?.length > 0) tabs.push({ id: 'cardapio', label: 'Cardápio' })
   if (est.tipo_negocio === 'service' && est.servicos?.length > 0) tabs.push({ id: 'servicos', label: 'Serviços' })
   if (est.tipo_negocio === 'product' && est.produtos?.length > 0) tabs.push({ id: 'produtos', label: 'Produtos' })
   if (est.tipo_negocio === 'pharmacy' && est.produtos?.length > 0) tabs.push({ id: 'produtos', label: 'Produtos' })
-  tabs.push({ id: 'promos', label: promoCount > 0 ? `Ofertas (${promoCount})` : 'Ofertas' })
   if (photos.length > 1) tabs.push({ id: 'fotos', label: 'Fotos' })
 
   const floorLabel = est.andar === 0 ? 'Térreo' : est.andar === 1 ? '1º Andar' : est.andar === 2 ? '2º Andar' : ''
@@ -208,7 +206,6 @@ export default function EstabelecimentoDetalhe() {
         {tab === 'produtos' && <TabProdutos items={est.produtos || []} whatsLink={whatsLink} />}
         {tab === 'servicos' && <TabServicos items={est.servicos || []} whatsLink={whatsLink} />}
         {tab === 'cardapio' && <TabCardapio items={est.cardapio || []} />}
-        {tab === 'promos' && <TabPromos items={est.promocoes || []} whatsLink={whatsLink} storeName={est.nome} />}
         {tab === 'fotos' && <TabFotos photos={photos} />}
       </div>
 

@@ -84,6 +84,8 @@ export default function Home() {
                 const est = o.estabelecimentos || {}
                 const whatsMsg = encodeURIComponent(`Olá! 👋\nVi no *Jornal Lupa SJC* a oferta:\n\n🏷️ *${o.titulo}*\n\nGostaria de aproveitar!`)
                 const whatsLink = est.whatsapp ? `https://wa.me/55${est.whatsapp?.replace(/\D/g, '')}?text=${whatsMsg}` : null
+                const hasDiscount = o.valor_desconto && o.tipo_promo === 'percentage'
+                const hasPrice = o.preco_por
                 return (
                   <div key={o.id} className="bg-white rounded-xl border border-gray-100 overflow-hidden shadow-sm card-hover">
                     {o.imagem_url ? (
@@ -99,27 +101,29 @@ export default function Home() {
                         <span className="text-[9px] text-gray-400 truncate">{est.nome}</span>
                       </div>
                       <h3 className="text-xs font-bold text-lupa-black line-clamp-2 leading-tight">{o.titulo}</h3>
-                      <div className="flex items-center gap-1.5 mt-1">
-                        {o.valor_desconto && o.tipo_promo === 'percentage' && (
-                          <span className="px-1.5 py-0.5 bg-tauste-orange text-white text-[9px] font-bold rounded">-{o.valor_desconto}%</span>
+
+                      {/* Price/Discount — always in orange */}
+                      <div className="mt-1.5">
+                        {hasDiscount && (
+                          <span className="text-lg font-bold text-tauste-orange">-{o.valor_desconto}%</span>
                         )}
-                        {o.preco_de && <span className="text-[9px] text-gray-400 line-through">R${Number(o.preco_de).toFixed(0)}</span>}
-                        {o.preco_por && <span className="text-xs font-bold text-tauste-orange">R$ {Number(o.preco_por).toFixed(2)}</span>}
+                        {hasPrice && (
+                          <div className="flex items-baseline gap-1.5">
+                            {o.preco_de && <span className="text-[10px] text-gray-400 line-through">R$ {Number(o.preco_de).toFixed(2)}</span>}
+                            <span className={`font-bold text-tauste-orange ${hasDiscount ? 'text-sm' : 'text-lg'}`}>R$ {Number(o.preco_por).toFixed(2)}</span>
+                          </div>
+                        )}
+                        {!hasDiscount && !hasPrice && o.valor_desconto && (
+                          <span className="text-lg font-bold text-tauste-orange">R$ {Number(o.valor_desconto).toFixed(2)}</span>
+                        )}
                       </div>
+
                       {o.dias_restantes !== null && o.dias_restantes !== undefined && (
                         <p className="text-[9px] text-gray-400 mt-1">{o.dias_restantes === 0 ? 'Expira hoje!' : `${o.dias_restantes}d restantes`}</p>
                       )}
-                      <div className="mt-2">
-                        {whatsLink ? (
-                          <a href={whatsLink} target="_blank" rel="noopener" className="block w-full py-1.5 bg-green-500 text-white text-[10px] font-bold rounded-md text-center">
-                            Quero essa oferta
-                          </a>
-                        ) : (
-                          <Link to="/ofertas" className="block w-full py-1.5 bg-tauste-blue text-white text-[10px] font-bold rounded-md text-center">
-                            Ver oferta
-                          </Link>
-                        )}
-                      </div>
+                      <Link to={`/estabelecimento/${est.slug}`} className="block w-full py-1.5 mt-2 bg-tauste-blue text-white text-[10px] font-bold rounded-md text-center">
+                        Ver oferta
+                      </Link>
                     </div>
                   </div>
                 )
