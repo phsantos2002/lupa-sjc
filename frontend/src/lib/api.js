@@ -36,6 +36,10 @@ export const getPromocoes = (params) => {
 export const createPromocao = (body) => request('/api/promocoes', { method: 'POST', body: JSON.stringify(body) })
 export const updatePromocao = (id, body) => request(`/api/promocoes/${id}`, { method: 'PUT', body: JSON.stringify(body) })
 export const deletePromocao = (id) => request(`/api/promocoes/${id}`, { method: 'DELETE' })
+export const getPromocao = (id) => request(`/api/promocoes/${id}`)
+export const gerarCupom = (body) => request('/api/promocoes/cupons', { method: 'POST', body: JSON.stringify(body) })
+export const getCupom = (code) => request(`/api/promocoes/cupons/${code}`)
+export const resgatarCupom = (code) => request(`/api/promocoes/cupons/${code}/redeem`, { method: 'PATCH' })
 
 // Busca
 export const buscar = (q, categoria) => {

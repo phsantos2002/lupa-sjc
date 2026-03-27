@@ -1,6 +1,6 @@
 import { useState, useEffect, useRef } from 'react'
 import { Link } from 'react-router-dom'
-import { getHome } from '../lib/api'
+import { getHome, getPromocoes } from '../lib/api'
 import EstabelecimentoCard from '../components/EstabelecimentoCard'
 
 const defaultPromos = [
@@ -18,10 +18,12 @@ const floors = [
 export default function Home() {
   const [data, setData] = useState(null)
   const [loading, setLoading] = useState(true)
+  const [ofertas, setOfertas] = useState([])
   const promoRef = useRef(null)
 
   useEffect(() => {
     getHome().then(setData).catch(console.error).finally(() => setLoading(false))
+    getPromocoes({ featured: true }).then(setOfertas).catch(() => {})
   }, [])
 
   if (loading) return (
@@ -105,6 +107,46 @@ export default function Home() {
             </button>
           </div>
         </section>
+
+        {/* Ofertas em Destaque */}
+        {ofertas.length > 0 && (
+          <section>
+            <div className="flex items-center justify-between mb-4">
+              <h2 className="font-display text-lg text-lupa-black flex items-center gap-2">
+                <span className="w-6 h-6 bg-red-50 rounded-lg flex items-center justify-center">
+                  <svg className="w-3.5 h-3.5 text-red-500" fill="none" stroke="currentColor" strokeWidth={2} viewBox="0 0 24 24"><path strokeLinecap="round" strokeLinejoin="round" d="M15.362 5.214A8.252 8.252 0 0112 21 8.25 8.25 0 016.038 7.048 8.287 8.287 0 009 9.6a8.983 8.983 0 013.361-6.867 8.21 8.21 0 003 2.48z" /></svg>
+                </span>
+                Ofertas da Semana
+              </h2>
+              <Link to="/ofertas" className="text-xs text-lupa-gold font-bold">Ver todas →</Link>
+            </div>
+            <div className="flex gap-3 overflow-x-auto no-scrollbar">
+              {ofertas.slice(0, 8).map(o => {
+                const est = o.estabelecimentos || {}
+                return (
+                  <Link key={o.id} to="/ofertas" className="min-w-[200px] bg-white rounded-xl border border-gray-100 overflow-hidden card-hover shrink-0">
+                    <div className="p-3">
+                      <div className="flex items-center gap-2 mb-2">
+                        {est.logo_url && <img src={est.logo_url} alt="" className="w-6 h-6 rounded-full object-cover" />}
+                        <span className="text-[10px] text-gray-400 truncate">{est.nome}</span>
+                      </div>
+                      <h4 className="text-xs font-bold text-lupa-black line-clamp-2">{o.titulo}</h4>
+                      {o.valor_desconto && o.tipo_promo === 'percentage' && (
+                        <span className="inline-block mt-1.5 px-2 py-0.5 bg-red-50 text-red-500 text-[10px] font-bold rounded">-{o.valor_desconto}%</span>
+                      )}
+                      {o.preco_por && (
+                        <p className="text-sm font-bold text-lupa-gold mt-1">R$ {Number(o.preco_por).toFixed(2)}</p>
+                      )}
+                      {o.dias_restantes !== null && (
+                        <p className="text-[10px] text-gray-400 mt-1.5">{o.dias_restantes === 0 ? 'Expira hoje!' : `${o.dias_restantes}d restantes`}</p>
+                      )}
+                    </div>
+                  </Link>
+                )
+              })}
+            </div>
+          </section>
+        )}
 
         {/* Pisos — TODAS as 27 lojas */}
         {floors.map(({ name, tag, icon, gradient }) => {
