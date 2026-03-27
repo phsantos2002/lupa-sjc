@@ -3,12 +3,6 @@ import { Link } from 'react-router-dom'
 import { getHome, getPromocoes } from '../lib/api'
 import EstabelecimentoCard from '../components/EstabelecimentoCard'
 
-const defaultPromos = [
-  { id: 1, titulo: 'Super Ofertas', descricao: 'Até 50% OFF em lojas selecionadas', badge: 'Destaque', link: '/ofertas' },
-  { id: 2, titulo: 'Novos Parceiros', descricao: 'Confira quem chegou esta semana', badge: 'Novo', link: '/categorias' },
-  { id: 3, titulo: 'Seja Premium', descricao: 'Destaque sua loja no Lupa', badge: 'VIP', link: '/parceiro' },
-]
-
 const floors = [
   { name: 'Térreo', tag: 'Térreo', icon: 'T', gradient: 'from-lupa-gold to-amber-600' },
   { name: '1º Andar', tag: '1º Andar', icon: '1', gradient: 'from-lupa-black to-gray-700' },
@@ -21,25 +15,35 @@ export default function Home() {
   const [ofertas, setOfertas] = useState([])
   const [catFilter, setCatFilter] = useState('all')
   const [openOnly, setOpenOnly] = useState(false)
-  const promoRef = useRef(null)
+  const ofertasRef = useRef(null)
 
   useEffect(() => {
     getHome().then(setData).catch(console.error).finally(() => setLoading(false))
     getPromocoes({ featured: true }).then(setOfertas).catch(() => {})
   }, [])
 
+  // Auto-scroll ofertas carousel
+  useEffect(() => {
+    if (!ofertasRef.current || ofertas.length === 0) return
+    const el = ofertasRef.current
+    let scrollPos = 0
+    const interval = setInterval(() => {
+      scrollPos += 1
+      if (scrollPos >= el.scrollWidth - el.clientWidth) scrollPos = 0
+      el.scrollTo({ left: scrollPos, behavior: 'smooth' })
+    }, 30)
+    return () => clearInterval(interval)
+  }, [ofertas])
+
   if (loading) return (
-    <div className="flex flex-col items-center justify-center py-20 gap-3">
+    <div className="flex flex-col items-center justify-center py-20">
       <div className="w-10 h-10 rounded-full border-[3px] border-lupa-gold/30 border-t-lupa-gold animate-spin" />
     </div>
   )
 
   if (!data) return <p className="text-center py-10 text-gray-400">Erro ao carregar</p>
 
-  const promos = data.promocoes?.length > 0 ? data.promocoes : defaultPromos
   const allStores = data.todasLojas || []
-
-  // Unique subcategories for filter
   const subcats = [...new Set(allStores.map(s => s.subcategoria).filter(Boolean))].sort()
   const openCount = allStores.filter(s => s.aberto_agora).length
 
@@ -50,15 +54,10 @@ export default function Home() {
     return stores
   }
 
-  const scrollPromo = (dir) => {
-    if (!promoRef.current) return
-    promoRef.current.scrollBy({ left: dir * 300, behavior: 'smooth' })
-  }
-
   return (
     <div>
       {/* Hero */}
-      <div className="hero-gradient text-white px-4 py-10 pb-14 relative overflow-hidden">
+      <div className="hero-gradient text-white px-4 py-8 pb-10 relative overflow-hidden">
         <div className="absolute inset-0 opacity-10" style={{ backgroundImage: 'radial-gradient(circle at 80% 20%, rgba(201,168,76,0.4) 0%, transparent 50%)' }} />
         <div className="max-w-5xl mx-auto relative">
           <div className="flex items-center gap-1.5 text-lupa-gold/70 text-[11px] uppercase tracking-[0.2em] mb-3">
@@ -72,21 +71,21 @@ export default function Home() {
             Tudo do Tauste<br />
             <span className="gold-shimmer">na palma da sua mão</span>
           </h1>
-          <p className="text-white/40 mt-3 text-sm">
-            {allStores.length} lojas em 3 andares para você explorar
+          <p className="text-white/40 mt-2 text-sm">
+            {allStores.length} lojas em 3 andares
           </p>
 
-          {/* Mini floor map */}
-          <div className="mt-6 flex flex-col gap-1.5 max-w-xs">
-            {[...floors].reverse().map(f => {
+          {/* Floor map — horizontal */}
+          <div className="mt-6 flex gap-2 justify-center">
+            {floors.map(f => {
               const count = allStores.filter(s => s.tags?.includes(f.tag)).length
               return (
-                <button key={f.name} onClick={() => document.getElementById(f.tag.replace(/[º\s]/g, ''))?.scrollIntoView({ behavior: 'smooth', block: 'start' })} className="flex items-center justify-between px-3 py-2 bg-white/10 hover:bg-white/20 backdrop-blur rounded-lg transition text-left">
-                  <div className="flex items-center gap-2">
-                    <span className={`w-6 h-6 rounded bg-gradient-to-br ${f.gradient} flex items-center justify-center text-white text-[10px] font-bold`}>{f.icon}</span>
-                    <span className="text-white text-xs font-medium">{f.name}</span>
+                <button key={f.name} onClick={() => document.getElementById(f.tag.replace(/[º\s]/g, ''))?.scrollIntoView({ behavior: 'smooth', block: 'start' })} className="flex-1 max-w-[160px] flex items-center gap-2 px-3 py-2.5 bg-white/10 hover:bg-white/20 backdrop-blur rounded-xl transition text-left">
+                  <span className={`w-8 h-8 rounded-lg bg-gradient-to-br ${f.gradient} flex items-center justify-center text-white text-xs font-bold shrink-0`}>{f.icon}</span>
+                  <div>
+                    <span className="text-white text-xs font-medium block">{f.name}</span>
+                    <span className="text-white/40 text-[10px]">{count} lojas</span>
                   </div>
-                  <span className="text-white/40 text-[10px]">{count} lojas →</span>
                 </button>
               )
             })}
@@ -94,48 +93,9 @@ export default function Home() {
         </div>
       </div>
 
-      <div className="max-w-5xl mx-auto px-4 -mt-7 space-y-10 pb-8">
+      <div className="max-w-5xl mx-auto px-4 -mt-5 space-y-8 pb-8">
 
-        {/* Promoções */}
-        <section>
-          <div className="relative">
-            <button onClick={() => scrollPromo(-1)} className="absolute -left-3 top-1/2 -translate-y-1/2 z-10 w-8 h-8 bg-white shadow-lg rounded-full items-center justify-center text-lupa-gold hidden sm:flex border border-gray-100">
-              <svg className="w-4 h-4" fill="none" stroke="currentColor" strokeWidth={2} viewBox="0 0 24 24"><path strokeLinecap="round" strokeLinejoin="round" d="M15 19l-7-7 7-7" /></svg>
-            </button>
-            <div ref={promoRef} className="flex gap-3 overflow-x-auto no-scrollbar snap-x snap-mandatory">
-              {promos.map((promo, i) => (
-                <Link
-                  key={promo.id}
-                  to={promo.link || '/ofertas'}
-                  className="min-w-[240px] sm:min-w-[280px] flex-shrink-0 rounded-2xl p-5 text-white relative overflow-hidden snap-start"
-                  style={{
-                    background: i === 0
-                      ? 'linear-gradient(135deg, #1A1A1A 0%, #C9A84C 100%)'
-                      : i === 1
-                        ? 'linear-gradient(135deg, #2D2D2D 0%, #4A3B19 100%)'
-                        : 'linear-gradient(135deg, #C9A84C 0%, #A6832A 100%)',
-                  }}
-                >
-                  {promo.badge && (
-                    <span className="absolute top-3 right-3 px-2 py-0.5 bg-white/15 backdrop-blur rounded-full text-[10px] font-bold uppercase tracking-wider">
-                      {promo.badge}
-                    </span>
-                  )}
-                  <h3 className="font-display text-lg mt-1">{promo.titulo}</h3>
-                  <p className="text-white/60 text-xs mt-1">{promo.descricao}</p>
-                  <span className="inline-block mt-3 px-3 py-1 bg-white/15 rounded-full text-[10px] font-bold uppercase tracking-wider">
-                    Ver mais
-                  </span>
-                </Link>
-              ))}
-            </div>
-            <button onClick={() => scrollPromo(1)} className="absolute -right-3 top-1/2 -translate-y-1/2 z-10 w-8 h-8 bg-white shadow-lg rounded-full items-center justify-center text-lupa-gold hidden sm:flex border border-gray-100">
-              <svg className="w-4 h-4" fill="none" stroke="currentColor" strokeWidth={2} viewBox="0 0 24 24"><path strokeLinecap="round" strokeLinejoin="round" d="M9 5l7 7-7 7" /></svg>
-            </button>
-          </div>
-        </section>
-
-        {/* Filters: Open now + Category */}
+        {/* Filters */}
         <section className="flex flex-col gap-3">
           <div className="flex items-center gap-3">
             <button
@@ -154,7 +114,7 @@ export default function Home() {
           </div>
         </section>
 
-        {/* Ofertas em Destaque */}
+        {/* Ofertas da Semana — auto-rotating */}
         {ofertas.length > 0 && (
           <section>
             <div className="flex items-center justify-between mb-4">
@@ -166,28 +126,49 @@ export default function Home() {
               </h2>
               <Link to="/ofertas" className="text-xs text-lupa-gold font-bold">Ver todas →</Link>
             </div>
-            <div className="flex gap-3 overflow-x-auto no-scrollbar">
-              {ofertas.slice(0, 8).map(o => {
+            <div ref={ofertasRef} className="flex gap-3 overflow-x-auto no-scrollbar" onMouseEnter={() => ofertasRef.current?.style.setProperty('scroll-behavior', 'auto')} onMouseLeave={() => ofertasRef.current?.style.removeProperty('scroll-behavior')}>
+              {/* Duplicate for infinite loop effect */}
+              {[...ofertas, ...ofertas].map((o, idx) => {
                 const est = o.estabelecimentos || {}
+                const whatsMsg = encodeURIComponent(`Olá! Vi a promoção *${o.titulo}* no Jornal Lupa e gostaria de saber mais! 🔍`)
+                const whatsLink = est.whatsapp ? `https://wa.me/55${est.whatsapp?.replace(/\D/g, '')}?text=${whatsMsg}` : null
                 return (
-                  <Link key={o.id} to="/ofertas" className="min-w-[200px] bg-white rounded-xl border border-gray-100 overflow-hidden card-hover shrink-0">
-                    <div className="p-3">
-                      <div className="flex items-center gap-2 mb-2">
-                        {est.logo_url && <img src={est.logo_url} alt="" className="w-6 h-6 rounded-full object-cover" />}
-                        <span className="text-[10px] text-gray-400 truncate">{est.nome}</span>
+                  <div key={`${o.id}-${idx}`} className="min-w-[260px] max-w-[280px] bg-white rounded-2xl border border-gray-100 overflow-hidden card-hover shrink-0">
+                    {/* Product image area */}
+                    {o.imagem_url ? (
+                      <img src={o.imagem_url} alt="" className="w-full h-32 object-cover" />
+                    ) : (
+                      <div className="w-full h-24 bg-gradient-to-br from-lupa-black to-lupa-gold/30 flex items-center justify-center">
+                        {est.logo_url && <img src={est.logo_url} alt="" className="w-12 h-12 rounded-full object-cover border-2 border-white/20" />}
                       </div>
-                      <h4 className="text-xs font-bold text-lupa-black line-clamp-2">{o.titulo}</h4>
-                      {o.valor_desconto && o.tipo_promo === 'percentage' && (
-                        <span className="inline-block mt-1.5 px-2 py-0.5 bg-red-50 text-red-500 text-[10px] font-bold rounded">-{o.valor_desconto}%</span>
-                      )}
-                      {o.preco_por && (
-                        <p className="text-sm font-bold text-lupa-gold mt-1">R$ {Number(o.preco_por).toFixed(2)}</p>
-                      )}
-                      {o.dias_restantes !== null && (
-                        <p className="text-[10px] text-gray-400 mt-1.5">{o.dias_restantes === 0 ? 'Expira hoje!' : `${o.dias_restantes}d restantes`}</p>
-                      )}
+                    )}
+                    <div className="p-3.5">
+                      <div className="flex items-center gap-2 mb-2">
+                        {est.logo_url && <img src={est.logo_url} alt="" className="w-5 h-5 rounded-full object-cover" />}
+                        <span className="text-[10px] text-gray-400 truncate">{est.nome}</span>
+                        {o.valor_desconto && o.tipo_promo === 'percentage' && (
+                          <span className="ml-auto px-2 py-0.5 bg-red-50 text-red-500 text-[10px] font-bold rounded">-{o.valor_desconto}%</span>
+                        )}
+                      </div>
+                      <h4 className="text-sm font-bold text-lupa-black line-clamp-2">{o.titulo}</h4>
+                      {o.descricao && <p className="text-[10px] text-gray-400 mt-1 line-clamp-1">{o.descricao}</p>}
+                      <div className="flex items-center gap-2 mt-2">
+                        {o.preco_de && <span className="text-[10px] text-gray-400 line-through">R$ {Number(o.preco_de).toFixed(2)}</span>}
+                        {o.preco_por && <span className="text-sm font-bold text-lupa-gold">R$ {Number(o.preco_por).toFixed(2)}</span>}
+                      </div>
+                      <div className="flex items-center justify-between mt-3">
+                        <span className="text-[10px] text-gray-400">{o.dias_restantes === 0 ? 'Expira hoje!' : o.dias_restantes ? `${o.dias_restantes}d` : ''}</span>
+                        <div className="flex gap-1.5">
+                          <Link to="/ofertas" className="px-2.5 py-1 bg-lupa-gold text-lupa-black text-[10px] font-bold rounded-lg">Pegar cupom</Link>
+                          {whatsLink && (
+                            <a href={whatsLink} target="_blank" rel="noopener" className="px-2 py-1 bg-green-500 text-white text-[10px] font-bold rounded-lg flex items-center gap-0.5">
+                              <svg className="w-3 h-3" fill="currentColor" viewBox="0 0 24 24"><path d="M17.472 14.382c-.297-.149-1.758-.867-2.03-.967-.273-.099-.471-.148-.67.15-.197.297-.767.966-.94 1.164-.173.199-.347.223-.644.075-.297-.15-1.255-.463-2.39-1.475-.883-.788-1.48-1.761-1.653-2.059-.173-.297-.018-.458.13-.606.134-.133.298-.347.446-.52.149-.174.198-.298.298-.497.099-.198.05-.371-.025-.52-.075-.149-.669-1.612-.916-2.207-.242-.579-.487-.5-.669-.51l-.57-.01c-.198 0-.52.074-.792.372-.272.297-1.04 1.016-1.04 2.479 0 1.462 1.065 2.875 1.213 3.074.149.198 2.096 3.2 5.077 4.487.709.306 1.262.489 1.694.625.712.227 1.36.195 1.871.118.571-.085 1.758-.719 2.006-1.413.248-.694.248-1.289.173-1.413-.074-.124-.272-.198-.57-.347z" /></svg>
+                            </a>
+                          )}
+                        </div>
+                      </div>
                     </div>
-                  </Link>
+                  </div>
                 )
               })}
             </div>
@@ -201,7 +182,6 @@ export default function Home() {
 
           return (
             <section key={name} id={tag.replace(/[º\s]/g, '')}>
-              {/* Floor header */}
               <div className="flex items-center gap-3 mb-5">
                 <div className={`w-11 h-11 rounded-xl bg-gradient-to-br ${gradient} flex items-center justify-center text-white font-bold text-lg shadow-md`}>
                   {icon}
@@ -212,8 +192,7 @@ export default function Home() {
                 </div>
               </div>
 
-              {/* Stores grid */}
-              <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-3 gap-3">
+              <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-3 gap-4">
                 {stores.map(est => (
                   <EstabelecimentoCard key={est.id} est={est} />
                 ))}
@@ -228,10 +207,7 @@ export default function Home() {
           <div className="relative">
             <h2 className="font-display text-xl text-white">Tem uma loja no Tauste?</h2>
             <p className="text-white/40 text-sm mt-2">Cadastre seu negócio e apareça para todos os clientes</p>
-            <Link
-              to="/parceiro"
-              className="inline-block mt-5 px-6 py-2.5 bg-lupa-gold text-lupa-black font-bold rounded-full hover:bg-lupa-gold-light transition text-sm"
-            >
+            <Link to="/parceiro" className="inline-block mt-5 px-6 py-2.5 bg-lupa-gold text-lupa-black font-bold rounded-full hover:bg-lupa-gold-light transition text-sm">
               Seja Parceiro
             </Link>
           </div>
