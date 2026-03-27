@@ -65,7 +65,7 @@ export default function Home() {
       <div className="max-w-5xl mx-auto px-4 space-y-6 pb-8">
 
         {/* Category chips */}
-        <section className="-mt-3">
+        <section className="mt-2">
           <div className="flex gap-2 overflow-x-auto no-scrollbar">
             <button onClick={() => setCatFilter('all')} className={`px-3 py-1.5 text-[11px] font-bold rounded-full whitespace-nowrap transition ${catFilter === 'all' ? 'bg-tauste-blue text-white' : 'bg-white text-gray-500 border border-gray-200'}`}>Todas</button>
             {subcats.map(c => (

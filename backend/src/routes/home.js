@@ -51,9 +51,9 @@ router.get('/', async (req, res) => {
       .order('criado_em', { ascending: false })
       .limit(8),
 
-    // TODAS as lojas (para exibir por piso)
+    // TODAS as lojas (para exibir por piso) — inclui promoções ativas
     supabase.from('estabelecimentos')
-      .select('*, categorias(nome, slug, icone, cor)')
+      .select('*, categorias(nome, slug, icone, cor), promocoes(id, titulo, descricao, tipo_promo, valor_desconto, preco_de, preco_por, ativo)')
       .eq('ativo', true)
       .order('nome'),
   ])
