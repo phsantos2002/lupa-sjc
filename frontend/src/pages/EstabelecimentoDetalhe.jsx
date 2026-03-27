@@ -110,7 +110,7 @@ export default function EstabelecimentoDetalhe() {
         <div className="flex flex-wrap items-center gap-3 mt-2">
           {status && (
             <span className={`inline-flex items-center gap-1.5 text-xs font-semibold ${status.open ? 'text-green-600' : 'text-red-500'}`}>
-              <span className={`w-2 h-2 rounded-full ${status.open ? 'bg-green-500' : 'bg-red-500'}`} />
+              <span className={`w-2 h-2 rounded-full ${status.open ? 'bg-[#25D366]' : 'bg-red-500'}`} />
               {status.open ? `Aberto agora` : 'Fechado'}
               {status.open && status.closes && <span className="text-gray-400 font-normal">• fecha às {status.closes?.slice(0, 5)}</span>}
             </span>
@@ -126,7 +126,7 @@ export default function EstabelecimentoDetalhe() {
         {/* Action buttons */}
         <div className="flex gap-2 mt-4">
           {whatsLink && (
-            <a href={whatsLink} target="_blank" rel="noopener" className="flex-1 py-2.5 bg-green-500 text-white text-sm font-bold rounded-xl text-center flex items-center justify-center gap-2">
+            <a href={whatsLink} target="_blank" rel="noopener" className="flex-1 py-2.5 bg-[#25D366] text-white text-sm font-bold rounded-xl text-center flex items-center justify-center gap-2">
               <svg className="w-4 h-4" fill="currentColor" viewBox="0 0 24 24"><path d="M17.472 14.382c-.297-.149-1.758-.867-2.03-.967-.273-.099-.471-.148-.67.15-.197.297-.767.966-.94 1.164-.173.199-.347.223-.644.075-.297-.15-1.255-.463-2.39-1.475-.883-.788-1.48-1.761-1.653-2.059-.173-.297-.018-.458.13-.606.134-.133.298-.347.446-.52.149-.174.198-.298.298-.497.099-.198.05-.371-.025-.52-.075-.149-.669-1.612-.916-2.207-.242-.579-.487-.5-.669-.51-.173-.008-.371-.01-.57-.01-.198 0-.52.074-.792.372-.272.297-1.04 1.016-1.04 2.479 0 1.462 1.065 2.875 1.213 3.074.149.198 2.096 3.2 5.077 4.487.709.306 1.262.489 1.694.625.712.227 1.36.195 1.871.118.571-.085 1.758-.719 2.006-1.413.248-.694.248-1.289.173-1.413-.074-.124-.272-.198-.57-.347z" /></svg>
               WhatsApp
             </a>
@@ -186,23 +186,6 @@ export default function EstabelecimentoDetalhe() {
         {tab === 'fotos' && <TabFotos photos={photos} />}
       </div>
 
-      {/* Sticky WhatsApp CTA */}
-      {whatsLink && (
-        <div className="fixed bottom-16 left-0 right-0 z-40 px-4 pb-2">
-          <div className="max-w-3xl mx-auto">
-            <a
-              href={whatsLink}
-              target="_blank"
-              rel="noopener"
-              onClick={() => trackEvent(est.id, 'whatsapp_click')}
-              className="flex items-center justify-center gap-2 w-full py-3 bg-green-500 text-white font-bold rounded-xl shadow-lg hover:bg-green-600 transition text-sm"
-            >
-              <svg className="w-5 h-5" fill="currentColor" viewBox="0 0 24 24"><path d="M17.472 14.382c-.297-.149-1.758-.867-2.03-.967-.273-.099-.471-.148-.67.15-.197.297-.767.966-.94 1.164-.173.199-.347.223-.644.075-.297-.15-1.255-.463-2.39-1.475-.883-.788-1.48-1.761-1.653-2.059-.173-.297-.018-.458.13-.606.134-.133.298-.347.446-.52.149-.174.198-.298.298-.497.099-.198.05-.371-.025-.52-.075-.149-.669-1.612-.916-2.207-.242-.579-.487-.5-.669-.51l-.57-.01c-.198 0-.52.074-.792.372-.272.297-1.04 1.016-1.04 2.479 0 1.462 1.065 2.875 1.213 3.074.149.198 2.096 3.2 5.077 4.487.709.306 1.262.489 1.694.625.712.227 1.36.195 1.871.118.571-.085 1.758-.719 2.006-1.413.248-.694.248-1.289.173-1.413-.074-.124-.272-.198-.57-.347z" /></svg>
-              Falar no WhatsApp
-            </a>
-          </div>
-        </div>
-      )}
     </div>
   )
 }
@@ -333,7 +316,7 @@ function TabServicos({ items, whatsLink }) {
             </div>
           </div>
           {whatsLink && (
-            <a href={`${whatsLink.split('?')[0]}?text=${encodeURIComponent(`Olá! Gostaria de agendar: ${s.nome}`)}`} target="_blank" rel="noopener" className="px-3 py-2 bg-green-500 text-white text-[10px] font-bold rounded-lg whitespace-nowrap">
+            <a href={`${whatsLink.split('?')[0]}?text=${encodeURIComponent(`Olá! Gostaria de agendar: ${s.nome}`)}`} target="_blank" rel="noopener" className="px-3 py-2 bg-[#25D366] text-white text-[10px] font-bold rounded-lg whitespace-nowrap">
               Agendar
             </a>
           )}
@@ -405,7 +388,7 @@ function TabPromos({ items, whatsLink, storeName }) {
               </div>
             )}
             {offerWhats && (
-              <a href={offerWhats} target="_blank" rel="noopener" className="flex items-center justify-center gap-1.5 mt-3 py-2 bg-green-500 text-white text-xs font-bold rounded-lg w-full hover:bg-green-600 transition">
+              <a href={offerWhats} target="_blank" rel="noopener" className="flex items-center justify-center gap-1.5 mt-3 py-2 bg-[#25D366] text-white text-xs font-bold rounded-lg w-full hover:bg-green-600 transition">
                 <svg className="w-3.5 h-3.5" fill="currentColor" viewBox="0 0 24 24"><path d="M17.472 14.382c-.297-.149-1.758-.867-2.03-.967-.273-.099-.471-.148-.67.15-.197.297-.767.966-.94 1.164-.173.199-.347.223-.644.075-.297-.15-1.255-.463-2.39-1.475-.883-.788-1.48-1.761-1.653-2.059-.173-.297-.018-.458.13-.606.134-.133.298-.347.446-.52.149-.174.198-.298.298-.497.099-.198.05-.371-.025-.52-.075-.149-.669-1.612-.916-2.207-.242-.579-.487-.5-.669-.51l-.57-.01c-.198 0-.52.074-.792.372-.272.297-1.04 1.016-1.04 2.479 0 1.462 1.065 2.875 1.213 3.074.149.198 2.096 3.2 5.077 4.487.709.306 1.262.489 1.694.625.712.227 1.36.195 1.871.118.571-.085 1.758-.719 2.006-1.413.248-.694.248-1.289.173-1.413-.074-.124-.272-.198-.57-.347z" /></svg>
                 Quero essa oferta
               </a>
@@ -506,9 +489,9 @@ function OfferCardFull({ offer, store, whatsLink }) {
         )}
 
         {/* CTA — pulsing green after capture */}
-        <button onClick={handleCTA} className={`flex items-center justify-center gap-2 mt-2 py-2 w-full text-white text-[11px] font-bold rounded-lg transition ${captured ? 'bg-green-500 pulse-green' : 'bg-green-500 hover:bg-green-600'}`}>
+        <button onClick={handleCTA} className={`flex items-center justify-center gap-2 mt-2 py-2 w-full text-white text-[11px] font-bold rounded-lg transition ${captured ? 'bg-[#25D366] pulse-green' : 'bg-[#25D366] hover:bg-green-600'}`}>
           <svg className="w-3.5 h-3.5" fill="currentColor" viewBox="0 0 24 24"><path d="M17.472 14.382c-.297-.149-1.758-.867-2.03-.967-.273-.099-.471-.148-.67.15-.197.297-.767.966-.94 1.164-.173.199-.347.223-.644.075-.297-.15-1.255-.463-2.39-1.475-.883-.788-1.48-1.761-1.653-2.059-.173-.297-.018-.458.13-.606.134-.133.298-.347.446-.52.149-.174.198-.298.298-.497.099-.198.05-.371-.025-.52-.075-.149-.669-1.612-.916-2.207-.242-.579-.487-.5-.669-.51l-.57-.01c-.198 0-.52.074-.792.372-.272.297-1.04 1.016-1.04 2.479 0 1.462 1.065 2.875 1.213 3.074.149.198 2.096 3.2 5.077 4.487.709.306 1.262.489 1.694.625.712.227 1.36.195 1.871.118.571-.085 1.758-.719 2.006-1.413.248-.694.248-1.289.173-1.413-.074-.124-.272-.198-.57-.347z" /></svg>
-          {captured ? (isWhatsApp ? 'Chamar agora' : 'Acessar cupom') : 'Quero essa oferta'}
+          {captured ? (isWhatsApp ? 'Aproveitar oferta' : 'Acessar cupom') : 'Quero essa oferta'}
         </button>
 
         {/* Lead capture modal */}
@@ -528,7 +511,7 @@ function OfferCardFull({ offer, store, whatsLink }) {
                   <input value={lead.telefone} onChange={e => setLead({ ...lead, telefone: e.target.value })} placeholder="(12) 99999-9999" className="w-full px-3 py-2.5 rounded-xl border border-gray-200 text-sm mt-1" />
                 </div>
               </div>
-              <button onClick={handleCapture} disabled={!lead.nome || !lead.telefone} className="w-full py-3 bg-green-500 text-white font-bold rounded-xl text-sm mt-4 disabled:opacity-50">Acessar oferta</button>
+              <button onClick={handleCapture} disabled={!lead.nome || !lead.telefone} className="w-full py-3 bg-[#25D366] text-white font-bold rounded-xl text-sm mt-4 disabled:opacity-50">Acessar oferta</button>
               <p className="text-[9px] text-gray-400 text-center mt-2">Seus dados serão usados apenas para enviar ofertas relevantes</p>
             </div>
           </div>

@@ -17,13 +17,14 @@ export default function FileUpload({ onUpload, label = 'Upload de arquivo', acce
 
     setUploading(true)
     try {
-      const fileName = `uploads/${Date.now()}-${file.name.replace(/[^a-zA-Z0-9.-]/g, '_')}`
+      const ext = file.name.split('.').pop() || 'jpg'
+      const fileName = `uploads/${Date.now()}-${Math.random().toString(36).slice(2, 8)}.${ext}`
 
       const { error } = await supabase.storage
         .from('logos')
         .upload(fileName, file, {
           cacheControl: '3600',
-          upsert: false,
+          upsert: true,
           contentType: file.type,
         })
 

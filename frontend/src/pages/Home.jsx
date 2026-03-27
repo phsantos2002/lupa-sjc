@@ -77,11 +77,19 @@ export default function Home() {
             <Link to="/ofertas" className="text-xs text-tauste-orange font-bold">Ver todas →</Link>
           </div>
 
-          {ofertas.length === 0 ? (
-            <p className="text-center text-gray-400 py-6 text-sm">Nenhuma oferta disponível no momento</p>
-          ) : (
-            <div className="grid grid-cols-2 sm:grid-cols-3 gap-3">
-              {ofertas.map(o => {
+          {(() => {
+            // 1 offer per store — prefer principal
+            const seen = new Set()
+            const unique = ofertas.filter(o => {
+              const sid = o.estabelecimento_id
+              if (seen.has(sid)) return false
+              seen.add(sid)
+              return true
+            }).sort((a, b) => (b.principal ? 1 : 0) - (a.principal ? 1 : 0))
+            if (unique.length === 0) return <p className="text-center text-gray-400 py-6 text-sm">Nenhuma oferta disponível no momento</p>
+            return (
+            <div className="grid grid-cols-2 gap-3">
+              {unique.map(o => {
                 const est = o.estabelecimentos || {}
                 const whatsMsg = encodeURIComponent(`Olá! 👋\nVi no *Jornal Lupa SJC* a oferta:\n\n🏷️ *${o.titulo}*\n\nGostaria de aproveitar!`)
                 const offerWhatsLink = est.whatsapp ? `https://wa.me/55${est.whatsapp?.replace(/\D/g, '')}?text=${whatsMsg}` : null
@@ -130,7 +138,8 @@ export default function Home() {
                 )
               })}
             </div>
-          )}
+            )
+          })()}
         </section>
 
         {/* CTA */}
