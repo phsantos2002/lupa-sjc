@@ -6,7 +6,7 @@ import EstabelecimentoCard from '../components/EstabelecimentoCard'
 const HERO_IMG = 'https://krruptyxkrvdxneezqnu.supabase.co/storage/v1/object/public/logos/tauste-hero.jpg'
 
 const floors = [
-  { name: 'Térreo', tag: 'Térreo', icon: 'T', color: 'bg-tauste-orange' },
+  { name: 'Piso Térreo', tag: 'Térreo', icon: 'T', color: 'bg-tauste-orange' },
   { name: '1º Andar', tag: '1º Andar', icon: '1', color: 'bg-tauste-blue' },
   { name: '2º Andar', tag: '2º Andar', icon: '2', color: 'bg-lupa-gold' },
 ]
@@ -16,7 +16,6 @@ export default function Home() {
   const [loading, setLoading] = useState(true)
   const [ofertas, setOfertas] = useState([])
   const [catFilter, setCatFilter] = useState('all')
-  const [openOnly, setOpenOnly] = useState(false)
   const ofertasRef = useRef(null)
 
   useEffect(() => {
@@ -42,25 +41,19 @@ export default function Home() {
 
   const allStores = data.todasLojas || []
   const subcats = [...new Set(allStores.map(s => s.subcategoria).filter(Boolean))].sort()
-  const openCount = allStores.filter(s => s.aberto_agora).length
 
   const getStoresByFloor = (tag) => {
     let stores = allStores.filter(est => est.tags?.includes(tag))
     if (catFilter !== 'all') stores = stores.filter(s => s.subcategoria === catFilter)
-    if (openOnly) stores = stores.filter(s => s.aberto_agora)
     return stores
   }
 
   return (
     <div>
       {/* Hero */}
-      <div className="relative overflow-hidden bg-tauste-blue" style={{ minHeight: '200px' }}>
+      <div className="relative overflow-hidden bg-tauste-blue" style={{ minHeight: '180px' }}>
         <img src={HERO_IMG} alt="" className="absolute inset-0 w-full h-full object-cover opacity-30" onError={e => { e.target.style.display = 'none' }} />
-        <div className="relative max-w-5xl mx-auto px-4 py-8 pb-10">
-          <div className="flex items-center gap-1.5 mb-2">
-            <img src="https://krruptyxkrvdxneezqnu.supabase.co/storage/v1/object/public/logos/lupa-logo.png" alt="" className="w-6 h-6 rounded-full border border-lupa-gold/50" onError={e => { e.target.style.display = 'none' }} />
-            <span className="text-lupa-gold text-[10px] font-bold uppercase tracking-[0.15em]">Jornal Lupa</span>
-          </div>
+        <div className="relative max-w-5xl mx-auto px-4 py-7 pb-8">
           <h1 className="text-white text-xl sm:text-3xl font-bold leading-tight">
             Descubra as lojas do<br />
             <span className="text-tauste-orange">Tauste São José</span>
@@ -71,14 +64,8 @@ export default function Home() {
 
       <div className="max-w-5xl mx-auto px-4 space-y-6 pb-8">
 
-        {/* Filters */}
-        <section className="-mt-3 flex flex-col gap-2">
-          <div className="flex items-center gap-3">
-            <button onClick={() => setOpenOnly(!openOnly)} className={`flex items-center gap-1.5 px-3 py-2 text-xs font-bold rounded-full transition shadow-sm ${openOnly ? 'bg-green-500 text-white' : 'bg-white text-gray-500 border border-gray-200'}`}>
-              <span className={`w-2 h-2 rounded-full ${openOnly ? 'bg-white' : 'bg-green-500'}`} />
-              Aberto agora {openCount > 0 && `(${openCount})`}
-            </button>
-          </div>
+        {/* Category chips */}
+        <section className="-mt-3">
           <div className="flex gap-2 overflow-x-auto no-scrollbar">
             <button onClick={() => setCatFilter('all')} className={`px-3 py-1.5 text-[11px] font-bold rounded-full whitespace-nowrap transition ${catFilter === 'all' ? 'bg-tauste-blue text-white' : 'bg-white text-gray-500 border border-gray-200'}`}>Todas</button>
             {subcats.map(c => (
@@ -102,7 +89,7 @@ export default function Home() {
             <div ref={ofertasRef} className="flex gap-3 overflow-x-auto no-scrollbar">
               {[...ofertas, ...ofertas].map((o, idx) => {
                 const est = o.estabelecimentos || {}
-                const whatsMsg = encodeURIComponent(`Olá! Vi a promoção *${o.titulo}* no Jornal Lupa e gostaria de saber mais! 🔍`)
+                const whatsMsg = encodeURIComponent(`Olá! 👋\nVi no *Jornal Lupa SJC* a oferta:\n\n🏷️ *${o.titulo}*\n\nGostaria de aproveitar!`)
                 const whatsLink = est.whatsapp ? `https://wa.me/55${est.whatsapp?.replace(/\D/g, '')}?text=${whatsMsg}` : null
                 return (
                   <div key={`${o.id}-${idx}`} className="min-w-[240px] max-w-[260px] bg-white rounded-2xl border border-gray-100 overflow-hidden card-hover shrink-0 shadow-sm">
@@ -122,17 +109,22 @@ export default function Home() {
                         )}
                       </div>
                       <h4 className="text-xs font-bold text-lupa-black line-clamp-2">{o.titulo}</h4>
-                      {o.preco_por && <p className="text-sm font-bold text-tauste-orange mt-1">R$ {Number(o.preco_por).toFixed(2)}</p>}
-                      <div className="flex items-center justify-between mt-2.5">
-                        <span className="text-[9px] text-gray-400">{o.dias_restantes ? `${o.dias_restantes}d` : ''}</span>
-                        <div className="flex gap-1">
-                          <Link to="/ofertas" className="px-2 py-1 bg-tauste-blue text-white text-[9px] font-bold rounded-md">Cupom</Link>
-                          {whatsLink && (
-                            <a href={whatsLink} target="_blank" rel="noopener" className="px-1.5 py-1 bg-green-500 text-white rounded-md">
-                              <svg className="w-3 h-3" fill="currentColor" viewBox="0 0 24 24"><path d="M17.472 14.382c-.297-.149-1.758-.867-2.03-.967-.273-.099-.471-.148-.67.15-.197.297-.767.966-.94 1.164-.173.199-.347.223-.644.075-.297-.15-1.255-.463-2.39-1.475-.883-.788-1.48-1.761-1.653-2.059-.173-.297-.018-.458.13-.606.134-.133.298-.347.446-.52.149-.174.198-.298.298-.497.099-.198.05-.371-.025-.52-.075-.149-.669-1.612-.916-2.207-.242-.579-.487-.5-.669-.51l-.57-.01c-.198 0-.52.074-.792.372-.272.297-1.04 1.016-1.04 2.479 0 1.462 1.065 2.875 1.213 3.074.149.198 2.096 3.2 5.077 4.487.709.306 1.262.489 1.694.625.712.227 1.36.195 1.871.118.571-.085 1.758-.719 2.006-1.413.248-.694.248-1.289.173-1.413-.074-.124-.272-.198-.57-.347z" /></svg>
-                            </a>
-                          )}
+                      {o.descricao && <p className="text-[10px] text-gray-400 mt-0.5 line-clamp-1">{o.descricao}</p>}
+                      {o.preco_por && (
+                        <div className="flex items-center gap-1.5 mt-1">
+                          {o.preco_de && <span className="text-[10px] text-gray-400 line-through">R$ {Number(o.preco_de).toFixed(2)}</span>}
+                          <span className="text-sm font-bold text-tauste-orange">R$ {Number(o.preco_por).toFixed(2)}</span>
                         </div>
+                      )}
+                      <div className="flex items-center gap-1.5 mt-2.5">
+                        {whatsLink ? (
+                          <a href={whatsLink} target="_blank" rel="noopener" className="flex-1 py-1.5 bg-green-500 text-white text-[10px] font-bold rounded-lg text-center flex items-center justify-center gap-1">
+                            <svg className="w-3 h-3" fill="currentColor" viewBox="0 0 24 24"><path d="M17.472 14.382c-.297-.149-1.758-.867-2.03-.967-.273-.099-.471-.148-.67.15-.197.297-.767.966-.94 1.164-.173.199-.347.223-.644.075-.297-.15-1.255-.463-2.39-1.475-.883-.788-1.48-1.761-1.653-2.059-.173-.297-.018-.458.13-.606.134-.133.298-.347.446-.52.149-.174.198-.298.298-.497.099-.198.05-.371-.025-.52-.075-.149-.669-1.612-.916-2.207-.242-.579-.487-.5-.669-.51l-.57-.01c-.198 0-.52.074-.792.372-.272.297-1.04 1.016-1.04 2.479 0 1.462 1.065 2.875 1.213 3.074.149.198 2.096 3.2 5.077 4.487.709.306 1.262.489 1.694.625.712.227 1.36.195 1.871.118.571-.085 1.758-.719 2.006-1.413.248-.694.248-1.289.173-1.413-.074-.124-.272-.198-.57-.347z" /></svg>
+                            Quero essa oferta
+                          </a>
+                        ) : (
+                          <Link to="/ofertas" className="flex-1 py-1.5 bg-tauste-blue text-white text-[10px] font-bold rounded-lg text-center">Ver oferta</Link>
+                        )}
                       </div>
                     </div>
                   </div>
@@ -169,9 +161,7 @@ export default function Home() {
           <div className="relative">
             <h2 className="text-xl font-bold text-white">Tem uma loja no Tauste?</h2>
             <p className="text-white/50 text-sm mt-2">Cadastre e apareça para todos os clientes</p>
-            <Link to="/parceiro" className="inline-block mt-5 px-6 py-2.5 bg-tauste-orange text-white font-bold rounded-full hover:bg-tauste-orange-light transition text-sm">
-              Seja Parceiro
-            </Link>
+            <Link to="/parceiro" className="inline-block mt-5 px-6 py-2.5 bg-tauste-orange text-white font-bold rounded-full hover:bg-tauste-orange-light transition text-sm">Seja Parceiro</Link>
           </div>
         </section>
       </div>

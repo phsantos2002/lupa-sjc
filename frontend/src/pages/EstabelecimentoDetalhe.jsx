@@ -47,15 +47,16 @@ export default function EstabelecimentoDetalhe() {
   const status = isOpenNow(horarios)
   const whatsLink = est.whatsapp ? `https://wa.me/55${est.whatsapp.replace(/\D/g, '')}?text=${encodeURIComponent(`Olá! Vi vocês no Lupa SJC 🔍`)}` : null
   const bannerImg = photos.length > 0 ? photos[photoIdx]?.url : (est.banner_url || est.foto_url)
-  const placeholder = `https://ui-avatars.com/api/?name=${encodeURIComponent(est.nome)}&size=800&background=1A1A1A&color=C9A84C&font-size=0.25`
+  const placeholder = `https://ui-avatars.com/api/?name=${encodeURIComponent(est.nome)}&size=800&background=1B2A6B&color=fff&font-size=0.25`
 
   // Determine which content tabs to show
+  const promoCount = est.promocoes?.length || 0
   const tabs = [{ id: 'sobre', label: 'Sobre' }]
   if (est.tipo_negocio === 'food' && est.cardapio?.length > 0) tabs.push({ id: 'cardapio', label: 'Cardápio' })
   if (est.tipo_negocio === 'service' && est.servicos?.length > 0) tabs.push({ id: 'servicos', label: 'Serviços' })
   if (est.tipo_negocio === 'product' && est.produtos?.length > 0) tabs.push({ id: 'produtos', label: 'Produtos' })
   if (est.tipo_negocio === 'pharmacy' && est.produtos?.length > 0) tabs.push({ id: 'produtos', label: 'Produtos' })
-  if (est.promocoes?.length > 0) tabs.push({ id: 'promos', label: 'Ofertas' })
+  tabs.push({ id: 'promos', label: promoCount > 0 ? `Ofertas (${promoCount})` : 'Ofertas' })
   if (photos.length > 1) tabs.push({ id: 'fotos', label: 'Fotos' })
 
   const floorLabel = est.andar === 0 ? 'Térreo' : est.andar === 1 ? '1º Andar' : est.andar === 2 ? '2º Andar' : ''
@@ -103,11 +104,6 @@ export default function EstabelecimentoDetalhe() {
           <div className="pb-1 min-w-0">
             <div className="flex items-center gap-1.5">
               <h1 className="text-xl font-bold text-lupa-black truncate">{est.nome}</h1>
-              {est.verificado && (
-                <svg className="w-5 h-5 text-lupa-gold shrink-0" fill="currentColor" viewBox="0 0 24 24">
-                  <path fillRule="evenodd" d="M8.603 3.799A4.49 4.49 0 0112 2.25c1.357 0 2.573.6 3.397 1.549a4.49 4.49 0 013.498 1.307 4.491 4.491 0 011.307 3.497A4.49 4.49 0 0121.75 12a4.49 4.49 0 01-1.549 3.397 4.491 4.491 0 01-1.307 3.497 4.491 4.491 0 01-3.497 1.307A4.49 4.49 0 0112 21.75a4.49 4.49 0 01-3.397-1.549 4.49 4.49 0 01-3.498-1.306 4.491 4.491 0 01-1.307-3.498A4.49 4.49 0 012.25 12c0-1.357.6-2.573 1.549-3.397a4.49 4.49 0 011.307-3.497 4.49 4.49 0 013.497-1.307zm7.007 6.387a.75.75 0 10-1.22-.872l-3.236 4.53L9.53 12.22a.75.75 0 00-1.06 1.06l2.25 2.25a.75.75 0 001.14-.094l3.75-5.25z" clipRule="evenodd" />
-                </svg>
-              )}
             </div>
             <p className="text-xs text-gray-500">{cat.nome}{est.subcategoria ? ` • ${est.subcategoria}` : ''}</p>
           </div>
@@ -161,7 +157,7 @@ export default function EstabelecimentoDetalhe() {
               onClick={() => setTab(t.id)}
               className={`px-4 py-2.5 text-sm font-medium whitespace-nowrap border-b-2 transition ${
                 tab === t.id
-                  ? 'border-lupa-gold text-lupa-black'
+                  ? 'border-tauste-orange text-lupa-black'
                   : 'border-transparent text-gray-400 hover:text-gray-600'
               }`}
             >
@@ -172,14 +168,32 @@ export default function EstabelecimentoDetalhe() {
       </div>
 
       {/* Tab content */}
-      <div className="px-4 py-5 pb-10">
+      <div className="px-4 py-5 pb-24">
         {tab === 'sobre' && <TabSobre est={est} horarios={horarios} floorLabel={floorLabel} />}
         {tab === 'produtos' && <TabProdutos items={est.produtos || []} whatsLink={whatsLink} />}
         {tab === 'servicos' && <TabServicos items={est.servicos || []} whatsLink={whatsLink} />}
         {tab === 'cardapio' && <TabCardapio items={est.cardapio || []} />}
-        {tab === 'promos' && <TabPromos items={est.promocoes || []} />}
+        {tab === 'promos' && <TabPromos items={est.promocoes || []} whatsLink={whatsLink} storeName={est.nome} />}
         {tab === 'fotos' && <TabFotos photos={photos} />}
       </div>
+
+      {/* Sticky WhatsApp CTA */}
+      {whatsLink && (
+        <div className="fixed bottom-16 left-0 right-0 z-40 px-4 pb-2">
+          <div className="max-w-3xl mx-auto">
+            <a
+              href={whatsLink}
+              target="_blank"
+              rel="noopener"
+              onClick={() => trackEvent(est.id, 'whatsapp_click')}
+              className="flex items-center justify-center gap-2 w-full py-3 bg-green-500 text-white font-bold rounded-xl shadow-lg hover:bg-green-600 transition text-sm"
+            >
+              <svg className="w-5 h-5" fill="currentColor" viewBox="0 0 24 24"><path d="M17.472 14.382c-.297-.149-1.758-.867-2.03-.967-.273-.099-.471-.148-.67.15-.197.297-.767.966-.94 1.164-.173.199-.347.223-.644.075-.297-.15-1.255-.463-2.39-1.475-.883-.788-1.48-1.761-1.653-2.059-.173-.297-.018-.458.13-.606.134-.133.298-.347.446-.52.149-.174.198-.298.298-.497.099-.198.05-.371-.025-.52-.075-.149-.669-1.612-.916-2.207-.242-.579-.487-.5-.669-.51l-.57-.01c-.198 0-.52.074-.792.372-.272.297-1.04 1.016-1.04 2.479 0 1.462 1.065 2.875 1.213 3.074.149.198 2.096 3.2 5.077 4.487.709.306 1.262.489 1.694.625.712.227 1.36.195 1.871.118.571-.085 1.758-.719 2.006-1.413.248-.694.248-1.289.173-1.413-.074-.124-.272-.198-.57-.347z" /></svg>
+              Falar no WhatsApp
+            </a>
+          </div>
+        </div>
+      )}
     </div>
   )
 }
@@ -351,27 +365,45 @@ function TabCardapio({ items }) {
 }
 
 // ===== TAB PROMOÇÕES =====
-function TabPromos({ items }) {
+function TabPromos({ items, whatsLink, storeName }) {
+  if (!items || items.length === 0) {
+    return (
+      <div className="text-center py-8">
+        <p className="text-gray-400 text-sm">Nenhuma oferta no momento</p>
+        <p className="text-gray-300 text-xs mt-1">Volte em breve para conferir as promoções!</p>
+      </div>
+    )
+  }
   return (
     <div className="space-y-3">
-      {items.map(p => (
-        <div key={p.id} className="bg-white border border-gray-100 rounded-xl p-4">
-          <div className="flex justify-between items-start">
-            <div>
-              <h4 className="font-bold text-sm text-lupa-black">{p.titulo}</h4>
-              {p.descricao && <p className="text-xs text-gray-400 mt-1">{p.descricao}</p>}
+      {items.map(p => {
+        const offerWhats = whatsLink ? `${whatsLink.split('?')[0]}?text=${encodeURIComponent(`Olá! 👋\nVi no *Jornal Lupa SJC* a oferta:\n\n🏷️ *${p.titulo}*\n\nGostaria de aproveitar!`)}` : null
+        return (
+          <div key={p.id} className="bg-white border border-gray-100 rounded-xl p-4">
+            <div className="flex justify-between items-start">
+              <div>
+                <h4 className="font-bold text-sm text-lupa-black">{p.titulo}</h4>
+                {p.descricao && <p className="text-xs text-gray-400 mt-1">{p.descricao}</p>}
+              </div>
+              {p.valor_desconto && p.tipo_promo === 'percentage' && (
+                <span className="px-2 py-0.5 bg-tauste-orange/10 text-tauste-orange text-[10px] font-bold rounded-full">-{p.valor_desconto}%</span>
+              )}
             </div>
-            {p.badge && <span className="px-2 py-0.5 bg-lupa-gold/10 text-lupa-gold text-[10px] font-bold rounded-full">{p.badge}</span>}
+            {(p.preco_de || p.preco_por) && (
+              <div className="flex items-center gap-2 mt-2">
+                {p.preco_de && <span className="text-xs text-gray-400 line-through">R$ {Number(p.preco_de).toFixed(2)}</span>}
+                {p.preco_por && <span className="text-lg font-bold text-tauste-orange">R$ {Number(p.preco_por).toFixed(2)}</span>}
+              </div>
+            )}
+            {offerWhats && (
+              <a href={offerWhats} target="_blank" rel="noopener" className="flex items-center justify-center gap-1.5 mt-3 py-2 bg-green-500 text-white text-xs font-bold rounded-lg w-full hover:bg-green-600 transition">
+                <svg className="w-3.5 h-3.5" fill="currentColor" viewBox="0 0 24 24"><path d="M17.472 14.382c-.297-.149-1.758-.867-2.03-.967-.273-.099-.471-.148-.67.15-.197.297-.767.966-.94 1.164-.173.199-.347.223-.644.075-.297-.15-1.255-.463-2.39-1.475-.883-.788-1.48-1.761-1.653-2.059-.173-.297-.018-.458.13-.606.134-.133.298-.347.446-.52.149-.174.198-.298.298-.497.099-.198.05-.371-.025-.52-.075-.149-.669-1.612-.916-2.207-.242-.579-.487-.5-.669-.51l-.57-.01c-.198 0-.52.074-.792.372-.272.297-1.04 1.016-1.04 2.479 0 1.462 1.065 2.875 1.213 3.074.149.198 2.096 3.2 5.077 4.487.709.306 1.262.489 1.694.625.712.227 1.36.195 1.871.118.571-.085 1.758-.719 2.006-1.413.248-.694.248-1.289.173-1.413-.074-.124-.272-.198-.57-.347z" /></svg>
+                Quero essa oferta
+              </a>
+            )}
           </div>
-          {(p.preco_de || p.preco_por) && (
-            <div className="flex items-center gap-2 mt-2">
-              {p.preco_de && <span className="text-xs text-gray-400 line-through">R$ {Number(p.preco_de).toFixed(2)}</span>}
-              {p.preco_por && <span className="text-lg font-bold text-lupa-gold">R$ {Number(p.preco_por).toFixed(2)}</span>}
-              {p.desconto_percentual && <span className="px-2 py-0.5 bg-red-50 text-red-500 text-xs font-bold rounded-full">-{p.desconto_percentual}%</span>}
-            </div>
-          )}
-        </div>
-      ))}
+        )
+      })}
     </div>
   )
 }
