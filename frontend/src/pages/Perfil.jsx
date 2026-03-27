@@ -1,6 +1,7 @@
 import { useState, useEffect } from 'react'
 import { Link } from 'react-router-dom'
 import { getEstabelecimento, updateEstabelecimento, createPromocao, deletePromocao } from '../lib/api'
+import FileUpload from '../components/FileUpload'
 
 const API_URL = import.meta.env.VITE_API_URL || ''
 
@@ -146,9 +147,6 @@ function EditProfile({ est, onSave }) {
     { key: 'instagram', label: 'Instagram' },
     { key: 'website', label: 'Site' },
     { key: 'endereco', label: 'Endereço' },
-    { key: 'logo_url', label: 'URL do Logo' },
-    { key: 'banner_url', label: 'URL da Foto de Capa (principal)' },
-    { key: 'foto_url', label: 'URL da Foto de Capa (alternativa)' },
   ]
 
   return (
@@ -163,6 +161,17 @@ function EditProfile({ est, onSave }) {
           )}
         </div>
       ))}
+
+      {/* File uploads */}
+      <FileUpload label="Upload do Logo" accept="image/*" onUpload={url => setForm({ ...form, logo_url: url })} />
+      {form.logo_url && <img src={form.logo_url} alt="Logo" className="w-16 h-16 rounded-lg object-cover border" />}
+
+      <FileUpload label="Upload da Foto de Capa" accept="image/*,video/*" onUpload={url => setForm({ ...form, banner_url: url })} />
+      {form.banner_url && <img src={form.banner_url} alt="Capa" className="w-full h-24 rounded-lg object-cover border" />}
+
+      <FileUpload label="Upload de Foto Extra" accept="image/*,video/*" onUpload={url => setForm({ ...form, foto_url: url })} />
+      {form.foto_url && <img src={form.foto_url} alt="Extra" className="w-full h-24 rounded-lg object-cover border" />}
+
       <button onClick={save} disabled={saving} className="w-full py-3 bg-tauste-blue text-white font-bold rounded-xl text-sm disabled:opacity-50">
         {saving ? 'Salvando...' : 'Salvar Perfil'}
       </button>
@@ -262,10 +271,8 @@ function ManageOffers({ est, onUpdate }) {
             <input value={form.valor_desconto} onChange={e => setForm({ ...form, valor_desconto: e.target.value })} placeholder="Valor (R$)" type="number" step="0.01" className="w-full px-3 py-2 rounded-lg border border-gray-200 text-sm" />
           )}
 
-          <div>
-            <label className="text-[10px] text-gray-400">Foto da oferta (URL)</label>
-            <input value={form.imagem_url} onChange={e => setForm({ ...form, imagem_url: e.target.value })} placeholder="https://..." className="w-full px-3 py-2 rounded-lg border border-gray-200 text-sm mt-1" />
-          </div>
+          <FileUpload label="Foto da oferta" accept="image/*" onUpload={url => setForm({ ...form, imagem_url: url })} />
+          {form.imagem_url && <img src={form.imagem_url} alt="" className="w-full h-20 rounded-lg object-cover" />}
           <div>
             <label className="text-[10px] text-gray-400">Validade</label>
             <input value={form.data_fim} onChange={e => setForm({ ...form, data_fim: e.target.value })} type="date" className="w-full px-3 py-2 rounded-lg border border-gray-200 text-sm mt-1" />
