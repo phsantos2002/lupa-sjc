@@ -178,15 +178,34 @@ function EditProfile({ est, onSave }) {
 // ===== MANAGE OFFERS =====
 function ManageOffers({ est, onUpdate }) {
   const ofertas = (est.promocoes || []).filter(p => p.ativo !== false)
+  const emptyForm = { titulo: '', descricao: '', tipo_promo: 'percentage', valor_desconto: '', preco_de: '', preco_por: '', data_fim: '', tipo_resgate: 'whatsapp', imagem_url: '' }
   const [showForm, setShowForm] = useState(false)
-  const [form, setForm] = useState({ titulo: '', descricao: '', tipo_promo: 'percentage', valor_desconto: '', preco_de: '', preco_por: '', data_fim: '', tipo_resgate: 'whatsapp', imagem_url: '' })
+  const [editingId, setEditingId] = useState(null)
+  const [form, setForm] = useState(emptyForm)
   const [saving, setSaving] = useState(false)
 
-  const create = async () => {
+  const openCreate = () => { setEditingId(null); setForm(emptyForm); setShowForm(true) }
+
+  const openEdit = (o) => {
+    setEditingId(o.id)
+    setForm({
+      titulo: o.titulo || '',
+      descricao: o.descricao || '',
+      tipo_promo: o.tipo_promo || 'percentage',
+      valor_desconto: o.valor_desconto || '',
+      preco_de: o.preco_de || '',
+      preco_por: o.preco_por || '',
+      data_fim: o.data_fim || '',
+      tipo_resgate: o.tipo_resgate || 'whatsapp',
+      imagem_url: o.imagem_url || '',
+    })
+    setShowForm(true)
+  }
+
+  const saveOffer = async () => {
     setSaving(true)
     try {
-      await createPromocao({
-        estabelecimento_id: est.id,
+      const payload = {
         titulo: form.titulo,
         descricao: form.descricao,
         tipo: 'oferta',
@@ -199,9 +218,15 @@ function ManageOffers({ est, onUpdate }) {
         imagem_url: form.imagem_url || null,
         ativo: true,
         destaque_home: true,
-      })
+      }
+      if (editingId) {
+        await updatePromocao(editingId, payload)
+      } else {
+        await createPromocao({ ...payload, estabelecimento_id: est.id })
+      }
       setShowForm(false)
-      setForm({ titulo: '', descricao: '', tipo_promo: 'percentage', valor_desconto: '', preco_de: '', preco_por: '', data_fim: '', tipo_resgate: 'whatsapp' })
+      setForm(emptyForm)
+      setEditingId(null)
       onUpdate()
     } catch (e) { alert(e.message) }
     setSaving(false)
@@ -214,7 +239,6 @@ function ManageOffers({ est, onUpdate }) {
   }
 
   const setPrincipal = async (id) => {
-    // Remove principal de todas, depois seta nesta
     for (const o of ofertas) {
       if (o.principal) await updatePromocao(o.id, { principal: false })
     }
@@ -222,7 +246,6 @@ function ManageOffers({ est, onUpdate }) {
     onUpdate()
   }
 
-  // Sort: principal first
   const sorted = [...ofertas].sort((a, b) => (b.principal ? 1 : 0) - (a.principal ? 1 : 0))
 
   return (
@@ -232,35 +255,38 @@ function ManageOffers({ est, onUpdate }) {
       ) : (
         <div className="space-y-2 mb-4">
           {sorted.map(o => (
-            <div key={o.id} className={`rounded-xl p-3 flex items-start justify-between ${o.principal ? 'bg-lupa-gold/10 border-2 border-lupa-gold/30' : 'bg-tauste-orange/5 border border-tauste-orange/15'}`}>
-              <div className="min-w-0 flex-1">
-                <div className="flex items-center gap-1.5">
-                  {o.principal && <span className="text-base">👑</span>}
-                  <h4 className="text-sm font-bold text-lupa-black truncate">{o.titulo}</h4>
+            <div key={o.id} className={`rounded-xl p-3 ${o.principal ? 'bg-lupa-gold/10 border-2 border-lupa-gold/30' : 'bg-tauste-orange/5 border border-tauste-orange/15'}`}>
+              <div className="flex items-start justify-between">
+                <div className="min-w-0 flex-1">
+                  <div className="flex items-center gap-1.5">
+                    {o.principal && <span className="text-base">👑</span>}
+                    <h4 className="text-sm font-bold text-lupa-black truncate">{o.titulo}</h4>
+                  </div>
+                  {o.descricao && <p className="text-[11px] text-gray-400 mt-0.5">{o.descricao}</p>}
+                  <div className="flex gap-2 mt-1">
+                    {o.valor_desconto && o.tipo_promo === 'percentage' && <span className="text-xs font-bold text-tauste-orange">-{o.valor_desconto}%</span>}
+                    {o.preco_por && <span className="text-xs font-bold text-tauste-orange">R$ {Number(o.preco_por).toFixed(2)}</span>}
+                  </div>
                 </div>
-                {o.descricao && <p className="text-[11px] text-gray-400 mt-0.5">{o.descricao}</p>}
-                <div className="flex gap-2 mt-1">
-                  {o.valor_desconto && o.tipo_promo === 'percentage' && <span className="text-xs font-bold text-tauste-orange">-{o.valor_desconto}%</span>}
-                  {o.preco_por && <span className="text-xs font-bold text-tauste-orange">R$ {Number(o.preco_por).toFixed(2)}</span>}
-                </div>
+                {o.imagem_url && <img src={o.imagem_url} alt="" className="w-14 h-14 rounded-lg object-cover shrink-0 ml-2" />}
               </div>
-              <div className="flex flex-col gap-1 shrink-0 ml-2">
-                {!o.principal && (
-                  <button onClick={() => setPrincipal(o.id)} className="text-[10px] text-lupa-gold font-bold hover:underline">👑 Principal</button>
-                )}
-                <button onClick={() => remove(o.id)} className="text-[10px] text-red-400 hover:text-red-600">Remover</button>
+              <div className="flex gap-3 mt-2 pt-2 border-t border-gray-100">
+                <button onClick={() => openEdit(o)} className="text-[11px] text-tauste-blue font-bold">Editar</button>
+                {!o.principal && <button onClick={() => setPrincipal(o.id)} className="text-[11px] text-lupa-gold font-bold">👑 Principal</button>}
+                {o.principal && <span className="text-[11px] text-lupa-gold font-bold">👑 Principal</span>}
+                <button onClick={() => remove(o.id)} className="text-[11px] text-red-400 ml-auto">Remover</button>
               </div>
             </div>
           ))}
         </div>
       )}
 
-      {/* Create form */}
+      {/* Create/Edit form */}
       {!showForm ? (
-        <button onClick={() => setShowForm(true)} className="w-full py-3 bg-tauste-orange text-white font-bold rounded-xl text-sm">+ Nova Oferta</button>
+        <button onClick={openCreate} className="w-full py-3 bg-tauste-orange text-white font-bold rounded-xl text-sm min-h-[44px]">+ Nova Oferta</button>
       ) : (
         <div className="bg-white border border-gray-200 rounded-xl p-4 space-y-3">
-          <h3 className="font-bold text-sm text-lupa-black">Nova Oferta</h3>
+          <h3 className="font-bold text-sm text-lupa-black">{editingId ? 'Editar Oferta' : 'Nova Oferta'}</h3>
           <input value={form.titulo} onChange={e => setForm({ ...form, titulo: e.target.value })} placeholder="Título da oferta" className="w-full px-3 py-2 rounded-lg border border-gray-200 text-sm" />
           <textarea value={form.descricao} onChange={e => setForm({ ...form, descricao: e.target.value })} placeholder="Descrição" rows={2} className="w-full px-3 py-2 rounded-lg border border-gray-200 text-sm resize-none" />
 
@@ -302,8 +328,8 @@ function ManageOffers({ est, onUpdate }) {
           </div>
 
           <div className="flex gap-2">
-            <button onClick={create} disabled={saving || !form.titulo} className="flex-1 py-2.5 bg-tauste-blue text-white font-bold rounded-lg text-sm disabled:opacity-50">{saving ? 'Criando...' : 'Criar Oferta'}</button>
-            <button onClick={() => setShowForm(false)} className="px-4 py-2.5 bg-gray-100 text-gray-600 font-bold rounded-lg text-sm">Cancelar</button>
+            <button onClick={saveOffer} disabled={saving || !form.titulo} className="flex-1 py-2.5 bg-tauste-blue text-white font-bold rounded-lg text-sm disabled:opacity-50 min-h-[44px]">{saving ? 'Salvando...' : editingId ? 'Salvar Alterações' : 'Criar Oferta'}</button>
+            <button onClick={() => { setShowForm(false); setEditingId(null); setForm(emptyForm) }} className="px-4 py-2.5 bg-gray-100 text-gray-600 font-bold rounded-lg text-sm min-h-[44px]">Cancelar</button>
           </div>
         </div>
       )}
