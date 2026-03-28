@@ -9,7 +9,7 @@ router.get('/', async (req, res) => {
 
   let query = supabase
     .from('promocoes')
-    .select('*, estabelecimentos(nome, slug, bairro, foto_url, logo_url, andar, tags)')
+    .select('*, estabelecimentos(id, nome, slug, bairro, foto_url, logo_url, whatsapp, andar, tags)')
     .order('criado_em', { ascending: false })
 
   if (tipo) query = query.eq('tipo', tipo)
