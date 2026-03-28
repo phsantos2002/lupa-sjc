@@ -79,7 +79,7 @@ export default function Home() {
                   <div className="p-2.5 text-center">
                     <h4 className="text-xs font-bold text-lupa-black truncate">{est.nome}</h4>
                     <p className="text-[9px] text-tauste-orange">{est.subcategoria || ''}</p>
-                    <span className="inline-block mt-1.5 px-2.5 py-1 bg-tauste-blue text-white text-[9px] font-bold rounded-md">Ver perfil</span>
+                    <span className="inline-block mt-1.5 px-2.5 py-1 btn-blue-shine text-[9px] font-bold rounded-md">Ver perfil</span>
                   </div>
                 </Link>
               ))}

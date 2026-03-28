@@ -50,7 +50,7 @@ export default function OfferCard({ offer, store, onSelect }) {
         {/* Description — max 1 line */}
         {offer.descricao && <p className="text-[10px] text-gray-400 line-clamp-1 mt-0.5">{offer.descricao}</p>}
 
-        {/* Price — consistent position */}
+        {/* Price — consistent position and size */}
         <div className="mt-auto pt-1.5">
           {hasPrice && (
             <div className="flex items-baseline gap-1.5">
@@ -59,7 +59,7 @@ export default function OfferCard({ offer, store, onSelect }) {
             </div>
           )}
           {hasDiscount && !hasPrice && (
-            <span className="text-lg font-bold text-tauste-orange">-{offer.valor_desconto}%</span>
+            <span className="inline-block px-2 py-0.5 bg-tauste-orange text-white text-sm font-bold rounded">-{offer.valor_desconto}%</span>
           )}
           {!hasDiscount && !hasPrice && offer.valor_desconto && offer.tipo_promo === 'fixed_value' && (
             <span className="text-sm font-bold text-tauste-orange">{formatPrice(offer.valor_desconto)}</span>

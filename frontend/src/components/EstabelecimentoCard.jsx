@@ -69,7 +69,7 @@ export default function EstabelecimentoCard({ est }) {
 
         {/* Action button — gold "Ver perfil" only */}
         <div>
-          <Link to={`/estabelecimento/${est.slug}`} className="block w-full py-2 bg-lupa-gold text-lupa-black text-[11px] font-bold rounded-lg text-center min-h-[36px]">
+          <Link to={`/estabelecimento/${est.slug}`} className="block w-full py-2 btn-blue-shine text-[11px] font-bold rounded-lg text-center min-h-[36px]">
             Ver perfil
           </Link>
         </div>
