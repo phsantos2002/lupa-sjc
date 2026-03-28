@@ -61,7 +61,7 @@ export default function OfferCard({ offer, store, onSelect }) {
           {hasDiscount && !hasPrice && (
             <span className="text-lg font-bold text-tauste-orange">-{offer.valor_desconto}%</span>
           )}
-          {!hasDiscount && !hasPrice && offer.valor_desconto && (
+          {!hasDiscount && !hasPrice && offer.valor_desconto && offer.tipo_promo === 'fixed_value' && (
             <span className="text-sm font-bold text-tauste-orange">{formatPrice(offer.valor_desconto)}</span>
           )}
 

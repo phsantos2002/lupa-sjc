@@ -15,16 +15,25 @@ export default function Home() {
   }, [])
 
   // Auto-scroll sponsors
+  // Auto-scroll sponsors — pauses on touch/hover
   useEffect(() => {
     if (!sponsorsRef.current) return
     const el = sponsorsRef.current
+    let paused = false
     let pos = 0
     const iv = setInterval(() => {
-      pos += 1
-      if (pos >= el.scrollWidth - el.clientWidth) pos = 0
-      el.scrollTo({ left: pos })
-    }, 30)
-    return () => clearInterval(iv)
+      if (paused) { pos = el.scrollLeft; return }
+      pos += 0.5
+      if (pos >= el.scrollWidth / 2) pos = 0
+      el.scrollLeft = pos
+    }, 20)
+    const pause = () => { paused = true }
+    const resume = () => { paused = false; pos = el.scrollLeft }
+    el.addEventListener('touchstart', pause, { passive: true })
+    el.addEventListener('touchend', resume, { passive: true })
+    el.addEventListener('mouseenter', pause)
+    el.addEventListener('mouseleave', resume)
+    return () => { clearInterval(iv); el.removeEventListener('touchstart', pause); el.removeEventListener('touchend', resume); el.removeEventListener('mouseenter', pause); el.removeEventListener('mouseleave', resume) }
   }, [data])
 
   if (loading) return <div className="flex justify-center py-20"><div className="w-10 h-10 rounded-full border-[3px] border-tauste-orange/30 border-t-tauste-orange animate-spin" /></div>

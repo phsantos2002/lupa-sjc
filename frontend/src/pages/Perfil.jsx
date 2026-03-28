@@ -266,6 +266,7 @@ function ManageOffers({ est, onUpdate }) {
                   <div className="flex gap-2 mt-1">
                     {o.valor_desconto && o.tipo_promo === 'percentage' && <span className="text-xs font-bold text-tauste-orange">-{o.valor_desconto}%</span>}
                     {o.preco_por && <span className="text-xs font-bold text-tauste-orange">R$ {Number(o.preco_por).toFixed(2)}</span>}
+                  {!o.preco_por && o.valor_desconto && o.tipo_promo === 'fixed_value' && <span className="text-xs font-bold text-tauste-orange">R$ {Number(o.valor_desconto).toFixed(2)}</span>}
                   </div>
                 </div>
                 {o.imagem_url && <img src={o.imagem_url} alt="" className="w-14 h-14 rounded-lg object-cover shrink-0 ml-2" />}
@@ -342,20 +343,59 @@ function ManageOffers({ est, onUpdate }) {
 
 // ===== EDIT HOURS =====
 function EditHours({ est }) {
-  const horarios = est.horarios || []
   const DIAS = ['Domingo', 'Segunda', 'Terça', 'Quarta', 'Quinta', 'Sexta', 'Sábado']
+  const [hours, setHours] = useState((est.horarios || []).map(h => ({ ...h })))
+  const [saving, setSaving] = useState(false)
+  const [saved, setSaved] = useState(false)
+
+  const update = (idx, field, value) => {
+    const updated = [...hours]
+    updated[idx] = { ...updated[idx], [field]: value }
+    setHours(updated)
+  }
+
+  const save = async () => {
+    setSaving(true)
+    try {
+      const API = import.meta.env.VITE_API_URL || ''
+      for (const h of hours) {
+        await fetch(`${API}/api/promocoes`, { method: 'OPTIONS' }).catch(() => {}) // wake up
+        // Use supabase directly for horarios update
+        const { supabase } = await import('../lib/supabase')
+        await supabase.from('horarios').update({
+          hora_abre: h.hora_abre,
+          hora_fecha: h.hora_fecha,
+          fechado: h.fechado,
+        }).eq('id', h.id)
+      }
+      setSaved(true)
+      setTimeout(() => setSaved(false), 3000)
+    } catch { alert('Erro ao salvar horários') }
+    setSaving(false)
+  }
 
   return (
     <div className="space-y-2">
-      <p className="text-xs text-gray-400 mb-2">Horários atuais (edição em breve)</p>
-      {horarios.map(h => (
-        <div key={h.dia_semana} className="flex justify-between items-center py-2 px-3 bg-lupa-cream rounded-lg">
-          <span className="text-sm text-lupa-black">{DIAS[h.dia_semana]}</span>
-          <span className={`text-sm ${h.fechado ? 'text-red-400' : 'text-gray-600'}`}>
-            {h.fechado ? 'Fechado' : `${h.hora_abre?.slice(0, 5)} - ${h.hora_fecha?.slice(0, 5)}`}
-          </span>
+      {saved && <p className="text-sm text-green-600 bg-green-50 px-3 py-2 rounded-lg">Horários salvos!</p>}
+      {hours.map((h, idx) => (
+        <div key={h.dia_semana} className="flex items-center gap-2 py-2 px-3 bg-lupa-cream rounded-lg">
+          <span className="text-sm text-lupa-black w-20 shrink-0">{DIAS[h.dia_semana]}</span>
+          <label className="flex items-center gap-1 shrink-0">
+            <input type="checkbox" checked={h.fechado} onChange={e => update(idx, 'fechado', e.target.checked)} className="rounded" />
+            <span className="text-[10px] text-gray-400">Fechado</span>
+          </label>
+          {!h.fechado && (
+            <>
+              <input type="time" value={h.hora_abre?.slice(0, 5) || '09:00'} onChange={e => update(idx, 'hora_abre', e.target.value)} className="px-2 py-1 border border-gray-200 rounded text-xs w-20" />
+              <span className="text-gray-400 text-xs">-</span>
+              <input type="time" value={h.hora_fecha?.slice(0, 5) || '21:00'} onChange={e => update(idx, 'hora_fecha', e.target.value)} className="px-2 py-1 border border-gray-200 rounded text-xs w-20" />
+            </>
+          )}
         </div>
       ))}
+      <button onClick={save} disabled={saving} className="w-full py-3 bg-tauste-blue text-white font-bold rounded-xl text-sm mt-3 min-h-[44px] disabled:opacity-50">
+        {saving ? 'Salvando...' : 'Salvar Horários'}
+      </button>
     </div>
   )
 }
