@@ -121,24 +121,29 @@ export default function Ofertas() {
 
             {selected.condicoes && <p className="text-xs text-gray-400 mb-4 italic">{selected.condicoes}</p>}
 
-            <div className="flex gap-2">
-              <button
-                onClick={() => handleGetCoupon(selected.id)}
-                disabled={generating || selected.esgotado}
-                className="flex-1 py-3 bg-lupa-gold text-lupa-black font-bold rounded-xl text-sm disabled:opacity-50"
-              >
-                {generating ? 'Gerando...' : selected.esgotado ? 'Esgotado' : 'Pegar Cupom'}
-              </button>
-              {selected.estabelecimentos?.whatsapp && (
+            {/* Buttons respect tipo_resgate */}
+            <div className="flex flex-col gap-2">
+              {/* WhatsApp — primary if tipo_resgate is 'whatsapp' or 'both' */}
+              {selected.tipo_resgate !== 'local_coupon' && selected.estabelecimentos?.whatsapp && (
                 <a
-                  href={`https://wa.me/55${selected.estabelecimentos.whatsapp.replace(/\D/g, '')}?text=${encodeURIComponent(`Olá! Vi a promoção *${selected.titulo}* no Jornal Lupa e gostaria de aproveitar!`)}`}
+                  href={`https://wa.me/55${selected.estabelecimentos.whatsapp.replace(/\D/g, '')}?text=${encodeURIComponent(`Olá! 👋\nVi no *Jornal Lupa SJC* a oferta:\n\n🏷️ *${selected.titulo}*\n\nGostaria de aproveitar!`)}`}
                   target="_blank"
                   rel="noopener"
-                  className="py-3 px-4 bg-green-500 text-white font-bold rounded-xl text-sm flex items-center gap-1"
+                  className="w-full py-3 bg-[#25D366] text-white font-bold rounded-xl text-sm flex items-center justify-center gap-2"
                 >
-                  <svg className="w-4 h-4" fill="currentColor" viewBox="0 0 24 24"><path d="M17.472 14.382c-.297-.149-1.758-.867-2.03-.967-.273-.099-.471-.148-.67.15-.197.297-.767.966-.94 1.164-.173.199-.347.223-.644.075-.297-.15-1.255-.463-2.39-1.475-.883-.788-1.48-1.761-1.653-2.059-.173-.297-.018-.458.13-.606.134-.133.298-.347.446-.52.149-.174.198-.298.298-.497.099-.198.05-.371-.025-.52-.075-.149-.669-1.612-.916-2.207-.242-.579-.487-.5-.669-.51-.173-.008-.371-.01-.57-.01-.198 0-.52.074-.792.372-.272.297-1.04 1.016-1.04 2.479 0 1.462 1.065 2.875 1.213 3.074.149.198 2.096 3.2 5.077 4.487.709.306 1.262.489 1.694.625.712.227 1.36.195 1.871.118.571-.085 1.758-.719 2.006-1.413.248-.694.248-1.289.173-1.413-.074-.124-.272-.198-.57-.347z" /></svg>
-                  WhatsApp
+                  <svg className="w-5 h-5" fill="white" viewBox="0 0 24 24"><path d="M17.472 14.382c-.297-.149-1.758-.867-2.03-.967-.273-.099-.471-.148-.67.15-.197.297-.767.966-.94 1.164-.173.199-.347.223-.644.075-.297-.15-1.255-.463-2.39-1.475-.883-.788-1.48-1.761-1.653-2.059-.173-.297-.018-.458.13-.606.134-.133.298-.347.446-.52.149-.174.198-.298.298-.497.099-.198.05-.371-.025-.52-.075-.149-.669-1.612-.916-2.207-.242-.579-.487-.5-.669-.51l-.57-.01c-.198 0-.52.074-.792.372-.272.297-1.04 1.016-1.04 2.479 0 1.462 1.065 2.875 1.213 3.074.149.198 2.096 3.2 5.077 4.487.709.306 1.262.489 1.694.625.712.227 1.36.195 1.871.118.571-.085 1.758-.719 2.006-1.413.248-.694.248-1.289.173-1.413-.074-.124-.272-.198-.57-.347z"/><path d="M12 0C5.373 0 0 5.373 0 12c0 2.116.553 4.1 1.519 5.826L.053 23.664l5.96-1.56A11.93 11.93 0 0012 24c6.627 0 12-5.373 12-12S18.627 0 12 0zm0 21.82c-1.965 0-3.83-.528-5.47-1.528l-.392-.233-3.538.927.944-3.45-.256-.406A9.794 9.794 0 012.18 12c0-5.422 4.398-9.82 9.82-9.82 5.422 0 9.82 4.398 9.82 9.82 0 5.422-4.398 9.82-9.82 9.82z"/></svg>
+                  Aproveitar oferta
                 </a>
+              )}
+              {/* Coupon — show if tipo_resgate is 'local_coupon' or 'both' */}
+              {selected.tipo_resgate !== 'whatsapp' && (
+                <button
+                  onClick={() => handleGetCoupon(selected.id)}
+                  disabled={generating || selected.esgotado}
+                  className="w-full py-3 bg-tauste-blue text-white font-bold rounded-xl text-sm disabled:opacity-50"
+                >
+                  {generating ? 'Gerando...' : selected.esgotado ? 'Esgotado' : 'Gerar Cupom'}
+                </button>
               )}
             </div>
           </div>
@@ -190,33 +195,38 @@ export default function Ofertas() {
 // Promo Card
 function PromoCard({ promo, onSelect }) {
   const est = promo.estabelecimentos || {}
+  const placeholder = `https://ui-avatars.com/api/?name=${encodeURIComponent(est.nome || 'L')}&size=200&background=1B2A6B&color=fff`
   return (
-    <button onClick={onSelect} className="bg-white rounded-xl border border-gray-100 overflow-hidden card-hover text-left w-full">
-      {promo.imagem_url && <img src={promo.imagem_url} alt="" className="w-full h-32 object-cover" />}
-      <div className="p-4">
-        <div className="flex items-start justify-between gap-2">
-          <div className="min-w-0">
-            <h3 className="font-bold text-sm text-lupa-black line-clamp-2">{promo.titulo}</h3>
-            <div className="flex items-center gap-1.5 mt-1">
-              {est.logo_url && <img src={est.logo_url} alt="" className="w-5 h-5 rounded-full object-cover" />}
-              <span className="text-xs text-gray-400">{est.nome}</span>
-            </div>
-          </div>
-          {promo.valor_desconto && promo.tipo_promo === 'percentage' && (
-            <span className="px-2 py-1 bg-red-50 text-red-500 text-xs font-bold rounded-lg shrink-0">-{promo.valor_desconto}%</span>
-          )}
-        </div>
-        {(promo.preco_de || promo.preco_por) && (
-          <div className="flex items-center gap-2 mt-2">
-            {promo.preco_de && <span className="text-xs text-gray-400 line-through">R$ {Number(promo.preco_de).toFixed(2)}</span>}
-            {promo.preco_por && <span className="text-sm font-bold text-lupa-gold">R$ {Number(promo.preco_por).toFixed(2)}</span>}
+    <button onClick={onSelect} className="bg-white rounded-xl border border-gray-100 overflow-hidden card-hover text-left w-full flex">
+      {/* Photo left — square */}
+      <div className="w-32 h-32 shrink-0 bg-tauste-blue">
+        {promo.imagem_url ? (
+          <img src={promo.imagem_url} alt="" className="w-full h-full object-cover" />
+        ) : (
+          <div className="w-full h-full bg-gradient-to-br from-tauste-blue to-tauste-blue-light flex items-center justify-center">
+            {est.logo_url ? <img src={est.logo_url} alt="" className="w-10 h-10 rounded-full object-cover border-2 border-white/20" /> : <span className="text-white/30 text-xl font-bold">{est.nome?.charAt(0)}</span>}
           </div>
         )}
-        <div className="flex items-center justify-between mt-3">
-          <span className="text-[10px] text-gray-400">
-            {promo.dias_restantes === 0 ? 'Expira hoje!' : promo.dias_restantes ? `${promo.dias_restantes}d restantes` : ''}
-          </span>
-          <span className="text-[10px] text-lupa-gold font-bold uppercase">Ver oferta →</span>
+      </div>
+      {/* Info right */}
+      <div className="p-3 flex-1 flex flex-col min-w-0">
+        <h3 className="font-bold text-sm text-lupa-black line-clamp-2 leading-tight">{promo.titulo}</h3>
+        <div className="flex items-center gap-1.5 mt-1">
+          <img src={est.logo_url || placeholder} alt="" className="w-5 h-5 rounded-full object-cover" />
+          <span className="text-[11px] text-gray-400 truncate">{est.nome}</span>
+        </div>
+        <div className="mt-auto pt-1.5">
+          <div className="flex items-center gap-2">
+            {promo.valor_desconto && promo.tipo_promo === 'percentage' && (
+              <span className="px-1.5 py-0.5 bg-tauste-orange text-white text-[10px] font-bold rounded">-{promo.valor_desconto}%</span>
+            )}
+            {promo.preco_de && <span className="text-[10px] text-gray-400 line-through">R$ {Number(promo.preco_de).toFixed(2)}</span>}
+            {promo.preco_por && <span className="text-sm font-bold text-tauste-orange">R$ {Number(promo.preco_por).toFixed(2)}</span>}
+            {!promo.preco_por && promo.valor_desconto && promo.tipo_promo === 'fixed_value' && (
+              <span className="text-sm font-bold text-tauste-orange">R$ {Number(promo.valor_desconto).toFixed(2)}</span>
+            )}
+          </div>
+          <span className="text-[10px] text-tauste-orange font-bold mt-1 block">VER OFERTA →</span>
         </div>
       </div>
     </button>

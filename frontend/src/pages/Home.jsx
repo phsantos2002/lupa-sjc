@@ -65,8 +65,14 @@ export default function Home() {
             <div ref={sponsorsRef} className="flex gap-3 overflow-x-auto no-scrollbar">
               {[...sponsors, ...sponsors].map((est, idx) => (
                 <Link key={`${est.id}-${idx}`} to={`/estabelecimento/${est.slug}`} className="min-w-[160px] max-w-[180px] bg-white rounded-xl border border-gray-100 overflow-hidden card-hover shrink-0 shadow-sm">
-                  <div className="h-20 bg-gradient-to-br from-tauste-blue to-tauste-blue-light flex items-center justify-center">
-                    {est.logo_url ? <img src={est.logo_url} alt="" className="w-12 h-12 rounded-full object-cover border-2 border-white/20" /> : <span className="text-white/40 text-xl font-bold">{est.nome?.charAt(0)}</span>}
+                  <div className="h-20 bg-tauste-blue overflow-hidden relative">
+                    {(est.banner_url || est.foto_url) ? (
+                      <img src={est.banner_url || est.foto_url} alt="" className="w-full h-full object-cover" loading="lazy" />
+                    ) : est.logo_url ? (
+                      <div className="w-full h-full bg-gradient-to-br from-tauste-blue to-tauste-blue-light flex items-center justify-center"><img src={est.logo_url} alt="" className="w-12 h-12 rounded-full object-cover border-2 border-white/20" /></div>
+                    ) : (
+                      <div className="w-full h-full bg-gradient-to-br from-tauste-blue to-tauste-blue-light flex items-center justify-center"><span className="text-white/40 text-xl font-bold">{est.nome?.charAt(0)}</span></div>
+                    )}
                   </div>
                   <div className="p-2.5 text-center">
                     <h4 className="text-xs font-bold text-lupa-black truncate">{est.nome}</h4>
@@ -87,14 +93,15 @@ export default function Home() {
           </div>
 
           {(() => {
-            // 1 offer per store — prefer principal
+            // Sort principal first, THEN deduplicate per store
+            const sorted = [...ofertas].sort((a, b) => (b.principal ? 1 : 0) - (a.principal ? 1 : 0))
             const seen = new Set()
-            const unique = ofertas.filter(o => {
+            const unique = sorted.filter(o => {
               const sid = o.estabelecimento_id
               if (seen.has(sid)) return false
               seen.add(sid)
               return true
-            }).sort((a, b) => (b.principal ? 1 : 0) - (a.principal ? 1 : 0))
+            })
             if (unique.length === 0) return <p className="text-center text-gray-400 py-6 text-sm">Nenhuma oferta disponível no momento</p>
             return (
             <div className="grid grid-cols-2 gap-3">
