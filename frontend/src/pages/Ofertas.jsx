@@ -226,7 +226,7 @@ function PromoCard({ promo, onSelect }) {
               <span className="text-sm font-bold text-tauste-orange">R$ {Number(promo.valor_desconto).toFixed(2)}</span>
             )}
           </div>
-          <span className="text-[10px] text-tauste-orange font-bold mt-1 block">VER OFERTA →</span>
+          <span className="inline-flex items-center justify-center px-3 py-1.5 mt-1.5 bg-lupa-gold text-lupa-black text-[10px] font-bold rounded-md float-right">Ver oferta</span>
         </div>
       </div>
     </button>

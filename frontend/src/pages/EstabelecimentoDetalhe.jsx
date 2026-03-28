@@ -483,6 +483,9 @@ function OfferCardProfile({ offer, store, whatsLink }) {
           {!offer.preco_por && offer.valor_desconto && offer.tipo_promo === 'percentage' && (
             <span className="text-lg font-bold text-tauste-orange">-{offer.valor_desconto}%</span>
           )}
+          {!offer.preco_por && offer.valor_desconto && offer.tipo_promo === 'fixed_value' && (
+            <span className="text-lg font-bold text-tauste-orange">R$ {Number(offer.valor_desconto).toFixed(2)}</span>
+          )}
           <p className="text-[10px] text-gray-400 mt-0.5">{validity}</p>
 
           {/* CTA — WhatsApp logo white */}

@@ -70,11 +70,11 @@ export default function OfferCard({ offer, store, onSelect }) {
 
           {/* CTA Button */}
           {onSelect ? (
-            <button onClick={() => onSelect(offer)} className="block w-full py-2 mt-2 bg-lupa-gold text-lupa-black text-[11px] font-bold rounded-lg text-center min-h-[36px]">
+            <button onClick={() => onSelect(offer)} className="flex items-center justify-center w-full py-2.5 mt-2 bg-lupa-gold text-lupa-black text-xs font-bold rounded-lg min-h-[40px] shadow-sm hover:shadow-md transition">
               Ver oferta
             </button>
           ) : (
-            <Link to={`/estabelecimento/${est.slug}`} className="block w-full py-2 mt-2 bg-lupa-gold text-lupa-black text-[11px] font-bold rounded-lg text-center min-h-[36px]">
+            <Link to={`/estabelecimento/${est.slug}`} className="flex items-center justify-center w-full py-2.5 mt-2 bg-lupa-gold text-lupa-black text-xs font-bold rounded-lg min-h-[40px] shadow-sm hover:shadow-md transition">
               Ver oferta
             </Link>
           )}

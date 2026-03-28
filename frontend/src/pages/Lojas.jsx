@@ -21,11 +21,12 @@ export default function Lojas() {
 
   if (loading) return <div className="flex justify-center py-20"><div className="w-10 h-10 rounded-full border-[3px] border-tauste-blue/30 border-t-tauste-blue animate-spin" /></div>
 
-  const subcats = [...new Set(stores.map(s => s.subcategoria).filter(Boolean))].sort()
+  // Categories from actual stores (only those with active stores)
+  const categories = [...new Set(stores.map(s => s.categorias?.nome).filter(Boolean))].sort()
 
   let filtered = stores
   if (floor !== 'all') filtered = filtered.filter(s => s.tags?.includes(floor))
-  if (cat !== 'all') filtered = filtered.filter(s => s.subcategoria === cat)
+  if (cat !== 'all') filtered = filtered.filter(s => s.categorias?.nome === cat)
 
   return (
     <div className="max-w-5xl mx-auto px-4 pb-8">
@@ -43,11 +44,11 @@ export default function Lojas() {
         ))}
       </div>
 
-      {/* Category filter */}
+      {/* Category filter — only categories with active stores */}
       <div className="flex gap-2 overflow-x-auto no-scrollbar py-2">
-        <button onClick={() => setCat('all')} className={`px-3 py-1.5 text-[11px] font-bold rounded-full whitespace-nowrap transition ${cat === 'all' ? 'bg-tauste-orange text-white' : 'bg-white text-gray-500 border border-gray-200'}`}>Todas</button>
-        {subcats.map(c => (
-          <button key={c} onClick={() => setCat(c)} className={`px-3 py-1.5 text-[11px] font-bold rounded-full whitespace-nowrap transition ${cat === c ? 'bg-tauste-orange text-white' : 'bg-white text-gray-500 border border-gray-200'}`}>{c}</button>
+        <button onClick={() => setCat('all')} className={`px-3 py-1.5 text-[11px] font-bold rounded-full whitespace-nowrap transition ${cat === 'all' ? 'bg-lupa-gold text-lupa-black' : 'bg-white text-gray-500 border border-gray-200'}`}>Todas</button>
+        {categories.map(c => (
+          <button key={c} onClick={() => setCat(c)} className={`px-3 py-1.5 text-[11px] font-bold rounded-full whitespace-nowrap transition ${cat === c ? 'bg-lupa-gold text-lupa-black' : 'bg-white text-gray-500 border border-gray-200'}`}>{c}</button>
         ))}
       </div>
 
