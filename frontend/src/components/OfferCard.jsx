@@ -40,8 +40,8 @@ export default function OfferCard({ offer, store, onSelect }) {
       <div className="p-3 flex flex-col flex-1">
         {/* Store logo + name */}
         <div className="flex items-center gap-2 mb-1.5">
-          <img src={est.logo_url || placeholder} alt="" className="w-5 h-5 rounded-full object-cover shrink-0" />
-          <span className="text-[10px] text-gray-400 truncate">{est.nome}</span>
+          <img src={est.logo_url || placeholder} alt="" className="w-7 h-7 rounded-full object-cover shrink-0 border border-gray-100" />
+          <span className="text-xs font-medium text-gray-500 truncate">{est.nome}</span>
         </div>
 
         {/* Title — max 2 lines */}
