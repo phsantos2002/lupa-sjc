@@ -143,7 +143,6 @@ function EditProfile({ est, onSave }) {
     { key: 'nome', label: 'Nome da loja' },
     { key: 'descricao', label: 'Descrição curta' },
     { key: 'descricao_completa', label: 'Sobre (texto completo)', textarea: true },
-    { key: 'telefone', label: 'Telefone' },
     { key: 'whatsapp', label: 'WhatsApp (com DDD)' },
     { key: 'instagram', label: 'Instagram' },
     { key: 'website', label: 'Site' },
@@ -168,8 +167,60 @@ function EditProfile({ est, onSave }) {
       <FileUpload label="Upload da Foto de Capa" accept="image/*,video/*" currentUrl={form.banner_url} onUpload={url => setForm({ ...form, banner_url: url })} />
       <FileUpload label="Upload de Foto Extra" accept="image/*,video/*" currentUrl={form.foto_url} onUpload={url => setForm({ ...form, foto_url: url })} />
 
-      <button onClick={save} disabled={saving} className="w-full py-3 bg-tauste-blue text-white font-bold rounded-xl text-sm disabled:opacity-50">
+      <button onClick={save} disabled={saving} className="w-full py-3 bg-lupa-gold text-lupa-black font-bold rounded-xl text-sm disabled:opacity-50 min-h-[44px]">
         {saving ? 'Salvando...' : 'Salvar Perfil'}
+      </button>
+
+      {/* Credentials */}
+      <div className="mt-6 pt-4 border-t border-gray-200">
+        <h4 className="text-xs font-bold text-gray-500 uppercase tracking-wider mb-3">Alterar acesso</h4>
+        <ChangeCredentials estId={est.id} currentSlug={est.slug} />
+      </div>
+    </div>
+  )
+}
+
+function ChangeCredentials({ estId, currentSlug }) {
+  const [newSlug, setNewSlug] = useState(currentSlug || '')
+  const [newSenha, setNewSenha] = useState('')
+  const [saving, setSaving] = useState(false)
+  const [msg, setMsg] = useState('')
+
+  const save = async () => {
+    if (!newSlug) return
+    setSaving(true)
+    try {
+      const updates = { slug: newSlug }
+      if (newSenha) updates.senha = newSenha
+      const API = import.meta.env.VITE_API_URL || ''
+      const res = await fetch(`${API}/api/estabelecimentos/${estId}`, {
+        method: 'PUT', headers: { 'Content-Type': 'application/json' },
+        body: JSON.stringify(updates),
+      })
+      if (!res.ok) throw new Error('Erro ao salvar')
+      // Update localStorage
+      const auth = JSON.parse(localStorage.getItem('lupa_store_auth') || '{}')
+      auth.slug = newSlug
+      localStorage.setItem('lupa_store_auth', JSON.stringify(auth))
+      setMsg('Acesso atualizado!')
+      setTimeout(() => setMsg(''), 3000)
+    } catch { setMsg('Erro ao salvar') }
+    setSaving(false)
+  }
+
+  return (
+    <div className="space-y-3">
+      <div>
+        <label className="text-[11px] text-gray-400 uppercase tracking-wider">Identificador (login)</label>
+        <input value={newSlug} onChange={e => setNewSlug(e.target.value)} className="w-full px-3 py-2 rounded-xl border border-gray-200 text-sm mt-1" />
+      </div>
+      <div>
+        <label className="text-[11px] text-gray-400 uppercase tracking-wider">Nova senha (deixe vazio para manter)</label>
+        <input type="password" value={newSenha} onChange={e => setNewSenha(e.target.value)} placeholder="Nova senha" className="w-full px-3 py-2 rounded-xl border border-gray-200 text-sm mt-1" />
+      </div>
+      {msg && <p className={`text-sm ${msg.includes('Erro') ? 'text-red-500' : 'text-green-600'}`}>{msg}</p>}
+      <button onClick={save} disabled={saving} className="w-full py-2.5 bg-gray-100 text-gray-700 font-bold rounded-xl text-sm disabled:opacity-50 min-h-[44px]">
+        {saving ? 'Salvando...' : 'Atualizar acesso'}
       </button>
     </div>
   )

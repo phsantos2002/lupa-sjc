@@ -125,11 +125,17 @@ export default function EstabelecimentoDetalhe() {
 
         {/* Action buttons */}
         <div className="flex gap-2 mt-4">
-          {whatsLink && (
+          {/* WhatsApp — green if has number, gray if not */}
+          {whatsLink ? (
             <a href={whatsLink} target="_blank" rel="noopener" className="flex-1 py-2.5 bg-[#25D366] text-white text-sm font-bold rounded-xl text-center flex items-center justify-center gap-2">
               <svg className="w-5 h-5" fill="white" viewBox="0 0 24 24"><path d="M17.472 14.382c-.297-.149-1.758-.867-2.03-.967-.273-.099-.471-.148-.67.15-.197.297-.767.966-.94 1.164-.173.199-.347.223-.644.075-.297-.15-1.255-.463-2.39-1.475-.883-.788-1.48-1.761-1.653-2.059-.173-.297-.018-.458.13-.606.134-.133.298-.347.446-.52.149-.174.198-.298.298-.497.099-.198.05-.371-.025-.52-.075-.149-.669-1.612-.916-2.207-.242-.579-.487-.5-.669-.51l-.57-.01c-.198 0-.52.074-.792.372-.272.297-1.04 1.016-1.04 2.479 0 1.462 1.065 2.875 1.213 3.074.149.198 2.096 3.2 5.077 4.487.709.306 1.262.489 1.694.625.712.227 1.36.195 1.871.118.571-.085 1.758-.719 2.006-1.413.248-.694.248-1.289.173-1.413-.074-.124-.272-.198-.57-.347z"/><path d="M12 0C5.373 0 0 5.373 0 12c0 2.116.553 4.1 1.519 5.826L.053 23.664l5.96-1.56A11.93 11.93 0 0012 24c6.627 0 12-5.373 12-12S18.627 0 12 0zm0 21.82c-1.965 0-3.83-.528-5.47-1.528l-.392-.233-3.538.927.944-3.45-.256-.406A9.794 9.794 0 012.18 12c0-5.422 4.398-9.82 9.82-9.82 5.422 0 9.82 4.398 9.82 9.82 0 5.422-4.398 9.82-9.82 9.82z"/></svg>
               WhatsApp
             </a>
+          ) : (
+            <div className="flex-1 py-2.5 bg-gray-300 text-white text-sm font-bold rounded-xl text-center flex items-center justify-center gap-2 cursor-not-allowed opacity-60">
+              <svg className="w-5 h-5" fill="white" viewBox="0 0 24 24"><path d="M17.472 14.382c-.297-.149-1.758-.867-2.03-.967-.273-.099-.471-.148-.67.15-.197.297-.767.966-.94 1.164-.173.199-.347.223-.644.075-.297-.15-1.255-.463-2.39-1.475-.883-.788-1.48-1.761-1.653-2.059-.173-.297-.018-.458.13-.606.134-.133.298-.347.446-.52.149-.174.198-.298.298-.497.099-.198.05-.371-.025-.52-.075-.149-.669-1.612-.916-2.207-.242-.579-.487-.5-.669-.51l-.57-.01c-.198 0-.52.074-.792.372-.272.297-1.04 1.016-1.04 2.479 0 1.462 1.065 2.875 1.213 3.074.149.198 2.096 3.2 5.077 4.487.709.306 1.262.489 1.694.625.712.227 1.36.195 1.871.118.571-.085 1.758-.719 2.006-1.413.248-.694.248-1.289.173-1.413-.074-.124-.272-.198-.57-.347z"/></svg>
+              WhatsApp
+            </div>
           )}
           {est.telefone && (
             <a href={`tel:${est.telefone}`} className="py-2.5 px-4 bg-lupa-cream text-lupa-black text-sm font-bold rounded-xl flex items-center justify-center gap-2">
@@ -480,7 +486,7 @@ function OfferCardProfile({ offer, store, whatsLink }) {
           <p className="text-[10px] text-gray-400 mt-0.5">{validity}</p>
 
           {/* CTA — WhatsApp logo white */}
-          <button onClick={handleCTA} className={`flex items-center justify-center mt-2 py-2 w-full text-white text-[11px] font-bold rounded-lg min-h-[36px] transition ${captured ? 'bg-tauste-orange pulse-green' : 'bg-tauste-orange'}`}>
+          <button onClick={handleCTA} className={`flex items-center justify-center mt-2 py-2 w-full text-lupa-black text-[11px] font-bold rounded-lg min-h-[36px] transition ${captured ? 'bg-lupa-gold pulse-green' : 'bg-lupa-gold'}`}>
             {captured ? (isWhatsApp ? 'Aproveitar oferta' : 'Acessar cupom') : 'Quero essa oferta'}
           </button>
         </div>

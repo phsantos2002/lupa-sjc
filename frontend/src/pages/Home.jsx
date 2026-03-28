@@ -48,11 +48,11 @@ export default function Home() {
       <div className="relative overflow-hidden bg-tauste-blue" style={{ minHeight: '180px' }}>
         <img src="https://krruptyxkrvdxneezqnu.supabase.co/storage/v1/object/public/logos/tauste-hero.jpg" alt="" className="absolute inset-0 w-full h-full object-cover opacity-30" onError={e => { e.target.style.display = 'none' }} />
         <div className="relative max-w-5xl mx-auto px-4 py-7 pb-8">
-          <h1 className="text-white text-xl sm:text-3xl font-bold leading-tight">
-            Descubra as lojas do<br />
-            <span className="text-tauste-orange">Tauste São José</span>
+          <h1 className="text-white text-xl sm:text-2xl font-bold leading-tight">
+            Ofertas das lojas do<br />
+            <span className="text-tauste-orange">Supermercado Tauste</span>
           </h1>
-          <p className="text-white/50 text-xs mt-1.5">{allStores.length} lojas em 3 andares</p>
+          <p className="text-white/40 text-xs mt-1 font-light tracking-wide">São José dos Campos</p>
         </div>
       </div>
 

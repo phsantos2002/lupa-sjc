@@ -67,23 +67,11 @@ export default function EstabelecimentoCard({ est }) {
           </div>
         )}
 
-        {/* Action buttons */}
-        <div className="flex gap-2">
-          {whatsLink ? (
-            <>
-              <a href={whatsLink} target="_blank" rel="noopener" onClick={e => e.stopPropagation()} className="flex-1 py-2 bg-[#075E54] text-white text-[11px] font-bold rounded-lg text-center flex items-center justify-center gap-1 hover:bg-green-600 transition">
-                <svg className="w-3.5 h-3.5" fill="white" viewBox="0 0 24 24"><path d="M17.472 14.382c-.297-.149-1.758-.867-2.03-.967-.273-.099-.471-.148-.67.15-.197.297-.767.966-.94 1.164-.173.199-.347.223-.644.075-.297-.15-1.255-.463-2.39-1.475-.883-.788-1.48-1.761-1.653-2.059-.173-.297-.018-.458.13-.606.134-.133.298-.347.446-.52.149-.174.198-.298.298-.497.099-.198.05-.371-.025-.52-.075-.149-.669-1.612-.916-2.207-.242-.579-.487-.5-.669-.51l-.57-.01c-.198 0-.52.074-.792.372-.272.297-1.04 1.016-1.04 2.479 0 1.462 1.065 2.875 1.213 3.074.149.198 2.096 3.2 5.077 4.487.709.306 1.262.489 1.694.625.712.227 1.36.195 1.871.118.571-.085 1.758-.719 2.006-1.413.248-.694.248-1.289.173-1.413-.074-.124-.272-.198-.57-.347z" /></svg>
-                WhatsApp
-              </a>
-              <Link to={`/estabelecimento/${est.slug}`} className="py-2 px-3 border border-gray-200 text-gray-500 text-[11px] font-bold rounded-lg text-center hover:bg-gray-50 transition">
-                Ver perfil
-              </Link>
-            </>
-          ) : (
-            <Link to={`/estabelecimento/${est.slug}`} className="flex-1 py-2 bg-tauste-blue text-white text-[11px] font-bold rounded-lg text-center hover:bg-tauste-blue-light transition">
-              Ver perfil
-            </Link>
-          )}
+        {/* Action button — gold "Ver perfil" only */}
+        <div>
+          <Link to={`/estabelecimento/${est.slug}`} className="block w-full py-2 bg-lupa-gold text-lupa-black text-[11px] font-bold rounded-lg text-center min-h-[36px]">
+            Ver perfil
+          </Link>
         </div>
       </div>
     </div>

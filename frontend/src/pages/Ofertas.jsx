@@ -55,7 +55,7 @@ export default function Ofertas() {
 
   return (
     <div className="max-w-5xl mx-auto px-4 py-6">
-      <h1 className="font-display text-2xl text-lupa-black mb-1">Ofertas</h1>
+      <h1 className="text-xl font-bold text-lupa-black mb-1">Ofertas</h1>
       <p className="text-sm text-gray-400 mb-5">{promos.length} ofertas disponíveis</p>
 
       {/* Filters */}
@@ -140,7 +140,7 @@ export default function Ofertas() {
                 <button
                   onClick={() => handleGetCoupon(selected.id)}
                   disabled={generating || selected.esgotado}
-                  className="w-full py-3 bg-tauste-blue text-white font-bold rounded-xl text-sm disabled:opacity-50"
+                  className="w-full py-3 bg-lupa-gold text-lupa-black font-bold rounded-xl text-sm disabled:opacity-50"
                 >
                   {generating ? 'Gerando...' : selected.esgotado ? 'Esgotado' : 'Gerar Cupom'}
                 </button>
