@@ -2,11 +2,13 @@ import { useState, useEffect, useRef } from 'react'
 import { Link } from 'react-router-dom'
 import { getHome, getPromocoes } from '../lib/api'
 import OfferCard from '../components/OfferCard'
+import OfferPopup from '../components/OfferPopup'
 
 export default function Home() {
   const [data, setData] = useState(null)
   const [ofertas, setOfertas] = useState([])
   const [loading, setLoading] = useState(true)
+  const [selectedOffer, setSelectedOffer] = useState(null)
   const sponsorsRef = useRef(null)
 
   useEffect(() => {
@@ -105,7 +107,7 @@ export default function Home() {
             if (unique.length === 0) return <p className="text-center text-gray-400 py-6 text-sm">Nenhuma oferta disponível no momento</p>
             return (
             <div className="grid grid-cols-2 gap-3">
-              {unique.map(o => <OfferCard key={o.id} offer={o} />)}
+              {unique.map(o => <OfferCard key={o.id} offer={o} onSelect={(offer) => setSelectedOffer(offer)} />)}
             </div>
             )
           })()}
@@ -121,6 +123,11 @@ export default function Home() {
           </div>
         </section>
       </div>
+
+      {/* Offer Popup */}
+      {selectedOffer && (
+        <OfferPopup offer={selectedOffer} store={selectedOffer.estabelecimentos} onClose={() => setSelectedOffer(null)} />
+      )}
     </div>
   )
 }

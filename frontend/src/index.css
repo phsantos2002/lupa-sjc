@@ -51,6 +51,24 @@ body {
 
 .gold-glow { box-shadow: 0 0 15px rgba(201, 168, 76, 0.12); }
 
+/* Real gold shiny button */
+.btn-gold {
+  background: linear-gradient(145deg, #D4A017 0%, #F2D06B 25%, #E8C84C 40%, #D4A017 55%, #F2D06B 70%, #C9962C 100%);
+  background-size: 200% 200%;
+  color: #1A1A1A;
+  border: 1px solid rgba(212, 160, 23, 0.3);
+  box-shadow: 0 2px 8px rgba(201, 168, 76, 0.3), inset 0 1px 0 rgba(255, 255, 255, 0.35);
+  animation: gold-shine 3s ease-in-out infinite;
+  text-shadow: 0 1px 0 rgba(255, 255, 255, 0.3);
+}
+.btn-gold:hover {
+  box-shadow: 0 4px 16px rgba(201, 168, 76, 0.45), inset 0 1px 0 rgba(255, 255, 255, 0.4);
+}
+@keyframes gold-shine {
+  0%, 100% { background-position: 0% 50%; }
+  50% { background-position: 100% 50%; }
+}
+
 .floor-divider {
   background: linear-gradient(90deg, transparent, #F5841F, transparent);
   height: 1px;

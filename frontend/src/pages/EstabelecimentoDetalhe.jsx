@@ -4,6 +4,8 @@ import { getEstabelecimento } from '../lib/api'
 import { isFavorite, toggleFavorite } from '../lib/favorites'
 import { trackEvent } from '../lib/analytics'
 import { formatPrice } from '../lib/format'
+import OfferCard from '../components/OfferCard'
+import OfferPopup from '../components/OfferPopup'
 
 const DIAS = ['Domingo', 'Segunda', 'Terça', 'Quarta', 'Quinta', 'Sexta', 'Sábado']
 
@@ -28,6 +30,7 @@ export default function EstabelecimentoDetalhe() {
   const [loading, setLoading] = useState(true)
   const [tab, setTab] = useState('sobre')
   const [photoIdx, setPhotoIdx] = useState(0)
+  const [selectedOffer, setSelectedOffer] = useState(null)
 
   useEffect(() => {
     setLoading(true)
@@ -152,16 +155,20 @@ export default function EstabelecimentoDetalhe() {
       </div>
 
       {/* Inline offers (before tabs) */}
-      {/* Offer cards — rich visual cards */}
       {est.promocoes?.filter(p => p.ativo !== false).length > 0 && (
         <div className="px-4 mt-4">
           <h3 className="text-sm font-bold text-lupa-black mb-3">Ofertas desta loja</h3>
           <div className="grid grid-cols-2 gap-3">
             {est.promocoes.filter(p => p.ativo !== false).sort((a, b) => (b.principal ? 1 : 0) - (a.principal ? 1 : 0)).slice(0, 20).map(p => (
-              <OfferCardProfile key={p.id} offer={p} store={est} whatsLink={whatsLink} />
+              <OfferCard key={p.id} offer={p} store={est} onSelect={(o) => setSelectedOffer(o)} />
             ))}
           </div>
         </div>
+      )}
+
+      {/* Offer Popup */}
+      {selectedOffer && (
+        <OfferPopup offer={selectedOffer} store={est} onClose={() => setSelectedOffer(null)} />
       )}
 
       {/* Tabs */}
@@ -418,108 +425,6 @@ function FavButton({ storeId }) {
   )
 }
 
-// ===== OFFER CARD FULL (with lead capture) =====
-function OfferCardProfile({ offer, store, whatsLink }) {
-  const [showLead, setShowLead] = useState(false)
-  const [lead, setLead] = useState({ nome: '', telefone: '' })
-  const [captured, setCaptured] = useState(false)
-
-  useEffect(() => {
-    const saved = localStorage.getItem('lupa_lead')
-    if (saved) { setLead(JSON.parse(saved)); setCaptured(true) }
-  }, [])
-
-  const handleCapture = () => {
-    if (!lead.nome || !lead.telefone) return
-    localStorage.setItem('lupa_lead', JSON.stringify(lead))
-    fetch(`${import.meta.env.VITE_API_URL || ''}/api/analytics/track`, {
-      method: 'POST', headers: { 'Content-Type': 'application/json' },
-      body: JSON.stringify({ estabelecimento_id: store.id, evento: 'lead_captured', metadata: { nome: lead.nome, telefone: lead.telefone, oferta: offer.titulo } }),
-    }).catch(() => {})
-    setCaptured(true)
-    setShowLead(false)
-  }
-
-  const offerWhats = whatsLink ? `${whatsLink.split('?')[0]}?text=${encodeURIComponent(`Olá! 👋\nVi no *Jornal Lupa SJC* a oferta:\n\n🏷️ *${offer.titulo}*\n\nMeu nome: ${lead.nome}\nTelefone: ${lead.telefone}\n\nGostaria de aproveitar!`)}` : null
-  const isWhatsApp = offer.tipo_resgate !== 'local_coupon'
-
-  const handleCTA = () => {
-    if (!captured) { setShowLead(true); return }
-    if (isWhatsApp && offerWhats) { window.open(offerWhats, '_blank') }
-    else { alert(`Seu cupom: LUPA${Math.random().toString(36).substring(2, 6).toUpperCase()}\nApresente na loja ${store.nome}!`) }
-  }
-
-  const validity = offer.data_fim ? (() => { const d = Math.ceil((new Date(offer.data_fim) - new Date()) / 86400000); return d <= 0 ? 'Expira hoje!' : `${d}d restantes` })() : 'Válido por tempo limitado'
-
-  return (
-    <div className="bg-white rounded-xl border border-gray-100 overflow-hidden shadow-sm flex flex-col" style={{ minHeight: '280px' }}>
-      {/* Cover — fixed h-28 */}
-      <div className="relative h-28 bg-tauste-blue shrink-0">
-        {offer.imagem_url ? (
-          <img src={offer.imagem_url} alt="" className="w-full h-full object-cover" loading="lazy" />
-        ) : (
-          <div className="w-full h-full bg-gradient-to-br from-tauste-blue to-tauste-blue-light flex items-center justify-center">
-            {store.logo_url ? <img src={store.logo_url} alt="" className="w-12 h-12 rounded-full object-cover border-2 border-white/20" /> : <span className="text-white/30 text-2xl font-bold">{store.nome?.charAt(0)}</span>}
-          </div>
-        )}
-        {offer.principal && <span className="absolute top-2 left-2 text-lg">👑</span>}
-        {offer.valor_desconto && offer.tipo_promo === 'percentage' && (
-          <span className="absolute top-2 right-2 px-2 py-0.5 bg-tauste-orange text-white text-[10px] font-bold rounded">-{offer.valor_desconto}%</span>
-        )}
-      </div>
-
-      {/* Content */}
-      <div className="p-3 flex flex-col flex-1">
-        <h4 className="text-xs font-bold text-lupa-black line-clamp-2 leading-tight min-h-[32px]">{offer.titulo}</h4>
-        {offer.descricao && <p className="text-[10px] text-gray-400 line-clamp-1 mt-0.5">{offer.descricao}</p>}
-
-        <div className="mt-auto pt-1.5">
-          {offer.preco_por && (
-            <div className="flex items-baseline gap-1.5">
-              {offer.preco_de && <span className="text-[10px] text-gray-400 line-through">R$ {Number(offer.preco_de).toFixed(2)}</span>}
-              <span className="text-sm font-bold text-tauste-orange">R$ {Number(offer.preco_por).toFixed(2)}</span>
-            </div>
-          )}
-          {!offer.preco_por && offer.valor_desconto && offer.tipo_promo === 'percentage' && (
-            <span className="text-lg font-bold text-tauste-orange">-{offer.valor_desconto}%</span>
-          )}
-          {!offer.preco_por && offer.valor_desconto && offer.tipo_promo === 'fixed_value' && (
-            <span className="text-lg font-bold text-tauste-orange">R$ {Number(offer.valor_desconto).toFixed(2)}</span>
-          )}
-          <p className="text-[10px] text-gray-400 mt-0.5">{validity}</p>
-
-          {/* CTA — WhatsApp logo white */}
-          <button onClick={handleCTA} className={`flex items-center justify-center mt-2 py-2 w-full text-lupa-black text-[11px] font-bold rounded-lg min-h-[36px] transition ${captured ? 'bg-lupa-gold pulse-green' : 'bg-lupa-gold'}`}>
-            {captured ? (isWhatsApp ? 'Aproveitar oferta' : 'Acessar cupom') : 'Quero essa oferta'}
-          </button>
-        </div>
-
-        {/* Lead capture modal */}
-        {showLead && (
-          <div className="fixed inset-0 z-[100] flex items-end sm:items-center justify-center" onClick={() => setShowLead(false)}>
-            <div className="fixed inset-0 bg-black/50" />
-            <div className="relative bg-white rounded-t-2xl sm:rounded-2xl w-full sm:max-w-sm p-5" onClick={e => e.stopPropagation()}>
-              <h3 className="text-lg font-bold text-lupa-black text-center mb-1">Quase lá!</h3>
-              <p className="text-xs text-gray-400 text-center mb-4">Informe seus dados para acessar a oferta</p>
-              <div className="space-y-3">
-                <div>
-                  <label className="text-[11px] text-gray-500 uppercase tracking-wider">Seu nome</label>
-                  <input value={lead.nome} onChange={e => setLead({ ...lead, nome: e.target.value })} placeholder="Como podemos te chamar?" className="w-full px-3 py-2.5 rounded-xl border border-gray-200 text-sm mt-1" />
-                </div>
-                <div>
-                  <label className="text-[11px] text-gray-500 uppercase tracking-wider">WhatsApp</label>
-                  <input value={lead.telefone} onChange={e => setLead({ ...lead, telefone: e.target.value })} placeholder="(12) 99999-9999" className="w-full px-3 py-2.5 rounded-xl border border-gray-200 text-sm mt-1" />
-                </div>
-              </div>
-              <button onClick={handleCapture} disabled={!lead.nome || !lead.telefone} className="w-full py-3 bg-[#075E54] text-white font-bold rounded-xl text-sm mt-4 disabled:opacity-50 min-h-[44px]">Acessar oferta</button>
-              <p className="text-[9px] text-gray-400 text-center mt-2">Seus dados serão usados apenas para enviar ofertas relevantes</p>
-            </div>
-          </div>
-        )}
-      </div>
-    </div>
-  )
-}
 
 // ===== TAB FOTOS =====
 function TabFotos({ photos }) {

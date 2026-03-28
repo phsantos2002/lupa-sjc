@@ -1,6 +1,6 @@
 import { useState, useEffect } from 'react'
 import { Link } from 'react-router-dom'
-import { getEstabelecimento, updateEstabelecimento, createPromocao, updatePromocao, deletePromocao } from '../lib/api'
+import { getEstabelecimento, updateEstabelecimento, createPromocao, updatePromocao, deletePromocao, getCategorias } from '../lib/api'
 import FileUpload from '../components/FileUpload'
 
 const API_URL = import.meta.env.VITE_API_URL || ''
@@ -130,8 +130,14 @@ function EditProfile({ est, onSave }) {
     telefone: est.telefone || '', whatsapp: est.whatsapp || '', instagram: est.instagram || '',
     website: est.website || '', endereco: est.endereco || '', foto_url: est.foto_url || '',
     logo_url: est.logo_url || '', banner_url: est.banner_url || '',
+    categoria_id: est.categoria_id || '',
   })
   const [saving, setSaving] = useState(false)
+  const [categorias, setCategorias] = useState([])
+
+  useEffect(() => {
+    getCategorias().then(setCategorias).catch(console.error)
+  }, [])
 
   const save = async () => {
     setSaving(true)
@@ -151,6 +157,17 @@ function EditProfile({ est, onSave }) {
 
   return (
     <div className="space-y-3">
+      {/* Categoria */}
+      <div>
+        <label className="text-[10px] text-gray-400 uppercase tracking-wider">Categoria</label>
+        <select value={form.categoria_id} onChange={e => setForm({ ...form, categoria_id: e.target.value })} className="w-full px-3 py-2 rounded-xl border border-gray-200 text-sm mt-1 bg-white">
+          <option value="">Selecione uma categoria</option>
+          {categorias.map(c => (
+            <option key={c.id} value={c.id}>{c.icone} {c.nome}</option>
+          ))}
+        </select>
+      </div>
+
       {fields.map(f => (
         <div key={f.key}>
           <label className="text-[10px] text-gray-400 uppercase tracking-wider">{f.label}</label>
@@ -167,7 +184,7 @@ function EditProfile({ est, onSave }) {
       <FileUpload label="Upload da Foto de Capa" accept="image/*,video/*" currentUrl={form.banner_url} onUpload={url => setForm({ ...form, banner_url: url })} />
       <FileUpload label="Upload de Foto Extra" accept="image/*,video/*" currentUrl={form.foto_url} onUpload={url => setForm({ ...form, foto_url: url })} />
 
-      <button onClick={save} disabled={saving} className="w-full py-3 bg-lupa-gold text-lupa-black font-bold rounded-xl text-sm disabled:opacity-50 min-h-[44px]">
+      <button onClick={save} disabled={saving} className="w-full py-3 btn-gold font-bold rounded-xl text-sm disabled:opacity-50 min-h-[44px]">
         {saving ? 'Salvando...' : 'Salvar Perfil'}
       </button>
 
