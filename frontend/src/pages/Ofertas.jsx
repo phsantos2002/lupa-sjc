@@ -76,42 +76,66 @@ export default function Ofertas() {
   )
 }
 
-// Promo Card
+// Promo Card — larger, standardized
 function PromoCard({ promo, onSelect }) {
   const est = promo.estabelecimentos || {}
   const placeholder = `https://ui-avatars.com/api/?name=${encodeURIComponent(est.nome || 'L')}&size=200&background=1B2A6B&color=fff`
+  const hasDiscount = promo.valor_desconto && promo.tipo_promo === 'percentage'
+  const hasPrice = promo.preco_por
+
   return (
-    <button onClick={onSelect} className="bg-white rounded-xl border border-gray-100 overflow-hidden card-hover text-left w-full flex">
-      {/* Photo left — square */}
-      <div className="w-32 h-32 shrink-0 bg-tauste-blue">
-        {promo.imagem_url ? (
-          <img src={promo.imagem_url} alt="" className="w-full h-full object-cover" />
-        ) : (
-          <div className="w-full h-full bg-gradient-to-br from-tauste-blue to-tauste-blue-light flex items-center justify-center">
-            {est.logo_url ? <img src={est.logo_url} alt="" className="w-10 h-10 rounded-full object-cover border-2 border-white/20" /> : <span className="text-white/30 text-xl font-bold">{est.nome?.charAt(0)}</span>}
+    <button onClick={onSelect} className="bg-white rounded-xl border border-gray-100 overflow-hidden card-hover text-left w-full flex flex-col" style={{ minHeight: '200px' }}>
+      {/* Top — photo + info */}
+      <div className="flex flex-1">
+        {/* Photo left */}
+        <div className="w-36 shrink-0 bg-tauste-blue relative">
+          {promo.imagem_url ? (
+            <img src={promo.imagem_url} alt="" className="w-full h-full object-cover" />
+          ) : (
+            <div className="w-full h-full bg-gradient-to-br from-tauste-blue to-tauste-blue-light flex items-center justify-center">
+              {est.logo_url ? <img src={est.logo_url} alt="" className="w-12 h-12 rounded-full object-cover border-2 border-white/20" /> : <span className="text-white/30 text-2xl font-bold">{est.nome?.charAt(0)}</span>}
+            </div>
+          )}
+          {/* Discount badge on photo */}
+          {hasDiscount && (
+            <span className="absolute top-2 left-2 px-2.5 py-1 bg-tauste-orange text-white text-sm font-bold rounded-lg shadow-sm">-{promo.valor_desconto}%</span>
+          )}
+        </div>
+
+        {/* Info right */}
+        <div className="p-4 flex-1 flex flex-col min-w-0">
+          <h3 className="font-bold text-base text-lupa-black line-clamp-2 leading-snug">{promo.titulo}</h3>
+          <div className="flex items-center gap-2 mt-2">
+            <img src={est.logo_url || placeholder} alt="" className="w-6 h-6 rounded-full object-cover border border-gray-100" />
+            <span className="text-xs text-gray-400 truncate">{est.nome}</span>
           </div>
-        )}
+          {promo.descricao && <p className="text-xs text-gray-400 line-clamp-2 mt-2">{promo.descricao}</p>}
+
+          {/* Prices / Values */}
+          <div className="mt-auto pt-2">
+            <div className="flex items-center gap-2">
+              {hasPrice && (
+                <>
+                  {promo.preco_de && <span className="text-xs text-gray-400 line-through">R$ {Number(promo.preco_de).toFixed(2)}</span>}
+                  <span className="text-lg font-bold text-tauste-orange">R$ {Number(promo.preco_por).toFixed(2)}</span>
+                </>
+              )}
+              {!hasPrice && promo.valor_desconto && promo.tipo_promo === 'fixed_value' && (
+                <span className="text-lg font-bold text-tauste-orange">R$ {Number(promo.valor_desconto).toFixed(2)}</span>
+              )}
+              {hasDiscount && !hasPrice && (
+                <span className="px-3 py-1 bg-tauste-orange text-white text-base font-bold rounded-lg">-{promo.valor_desconto}%</span>
+              )}
+            </div>
+          </div>
+        </div>
       </div>
-      {/* Info right */}
-      <div className="p-3 flex-1 flex flex-col min-w-0">
-        <h3 className="font-bold text-sm text-lupa-black line-clamp-2 leading-tight">{promo.titulo}</h3>
-        <div className="flex items-center gap-1.5 mt-1">
-          <img src={est.logo_url || placeholder} alt="" className="w-5 h-5 rounded-full object-cover" />
-          <span className="text-[11px] text-gray-400 truncate">{est.nome}</span>
-        </div>
-        <div className="mt-auto pt-1.5">
-          <div className="flex items-center gap-2">
-            {promo.valor_desconto && promo.tipo_promo === 'percentage' && (
-              <span className="px-1.5 py-0.5 bg-tauste-orange text-white text-[10px] font-bold rounded">-{promo.valor_desconto}%</span>
-            )}
-            {promo.preco_de && <span className="text-[10px] text-gray-400 line-through">R$ {Number(promo.preco_de).toFixed(2)}</span>}
-            {promo.preco_por && <span className="text-sm font-bold text-tauste-orange">R$ {Number(promo.preco_por).toFixed(2)}</span>}
-            {!promo.preco_por && promo.valor_desconto && promo.tipo_promo === 'fixed_value' && (
-              <span className="text-sm font-bold text-tauste-orange">R$ {Number(promo.valor_desconto).toFixed(2)}</span>
-            )}
-          </div>
-          <span className="inline-flex items-center justify-center px-3 py-1.5 mt-1.5 btn-gold text-[10px] font-bold rounded-md float-right">Ver oferta</span>
-        </div>
+
+      {/* Bottom — full-width CTA button */}
+      <div className="px-3 pb-3">
+        <span className="flex items-center justify-center w-full py-3 btn-gold text-sm font-bold rounded-xl">
+          Ver oferta
+        </span>
       </div>
     </button>
   )
