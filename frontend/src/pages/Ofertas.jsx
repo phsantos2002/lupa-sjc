@@ -82,8 +82,8 @@ function PromoCard({ promo, onSelect }) {
   const placeholder = `https://ui-avatars.com/api/?name=${encodeURIComponent(est.nome || 'L')}&size=200&background=1B2A6B&color=fff`
   return (
     <button onClick={onSelect} className="bg-white rounded-xl border border-gray-100 overflow-hidden card-hover text-left w-full flex">
-      {/* Photo left — square */}
-      <div className="w-32 h-32 shrink-0 bg-tauste-blue">
+      {/* Photo left — stretches full card height */}
+      <div className="w-32 shrink-0 bg-tauste-blue self-stretch">
         {promo.imagem_url ? (
           <img src={promo.imagem_url} alt="" className="w-full h-full object-cover" />
         ) : (
