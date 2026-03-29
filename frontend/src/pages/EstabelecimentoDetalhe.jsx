@@ -31,6 +31,8 @@ export default function EstabelecimentoDetalhe() {
   const [tab, setTab] = useState('sobre')
   const [photoIdx, setPhotoIdx] = useState(0)
   const [selectedOffer, setSelectedOffer] = useState(null)
+  const [showLeadGate, setShowLeadGate] = useState(false)
+  const [pendingWhatsLink, setPendingWhatsLink] = useState(null)
 
   useEffect(() => {
     setLoading(true)
@@ -128,12 +130,22 @@ export default function EstabelecimentoDetalhe() {
 
         {/* Action buttons */}
         <div className="flex gap-2 mt-4">
-          {/* WhatsApp — green if has number, gray if not */}
+          {/* WhatsApp — requires lead registration */}
           {whatsLink ? (
-            <a href={whatsLink} target="_blank" rel="noopener" className="flex-1 py-2.5 bg-[#25D366] text-white text-sm font-bold rounded-xl text-center flex items-center justify-center gap-2">
+            <button onClick={() => {
+              const saved = localStorage.getItem('lupa_lead')
+              if (saved) {
+                const lead = JSON.parse(saved)
+                const msg = encodeURIComponent(`Olá! Vi vocês no Lupa SJC 🔍\n\nMeu nome: ${lead.nome}\nTelefone: ${lead.telefone}`)
+                window.open(`https://wa.me/55${est.whatsapp.replace(/\D/g, '')}?text=${msg}`, '_blank')
+              } else {
+                setPendingWhatsLink(whatsLink)
+                setShowLeadGate(true)
+              }
+            }} className="flex-1 py-2.5 bg-[#25D366] text-white text-sm font-bold rounded-xl text-center flex items-center justify-center gap-2">
               <svg className="w-5 h-5" fill="white" viewBox="0 0 24 24"><path d="M17.472 14.382c-.297-.149-1.758-.867-2.03-.967-.273-.099-.471-.148-.67.15-.197.297-.767.966-.94 1.164-.173.199-.347.223-.644.075-.297-.15-1.255-.463-2.39-1.475-.883-.788-1.48-1.761-1.653-2.059-.173-.297-.018-.458.13-.606.134-.133.298-.347.446-.52.149-.174.198-.298.298-.497.099-.198.05-.371-.025-.52-.075-.149-.669-1.612-.916-2.207-.242-.579-.487-.5-.669-.51l-.57-.01c-.198 0-.52.074-.792.372-.272.297-1.04 1.016-1.04 2.479 0 1.462 1.065 2.875 1.213 3.074.149.198 2.096 3.2 5.077 4.487.709.306 1.262.489 1.694.625.712.227 1.36.195 1.871.118.571-.085 1.758-.719 2.006-1.413.248-.694.248-1.289.173-1.413-.074-.124-.272-.198-.57-.347z"/><path d="M12 0C5.373 0 0 5.373 0 12c0 2.116.553 4.1 1.519 5.826L.053 23.664l5.96-1.56A11.93 11.93 0 0012 24c6.627 0 12-5.373 12-12S18.627 0 12 0zm0 21.82c-1.965 0-3.83-.528-5.47-1.528l-.392-.233-3.538.927.944-3.45-.256-.406A9.794 9.794 0 012.18 12c0-5.422 4.398-9.82 9.82-9.82 5.422 0 9.82 4.398 9.82 9.82 0 5.422-4.398 9.82-9.82 9.82z"/></svg>
               WhatsApp
-            </a>
+            </button>
           ) : (
             <div className="flex-1 py-2.5 bg-gray-300 text-white text-sm font-bold rounded-xl text-center flex items-center justify-center gap-2 cursor-not-allowed opacity-60">
               <svg className="w-5 h-5" fill="white" viewBox="0 0 24 24"><path d="M17.472 14.382c-.297-.149-1.758-.867-2.03-.967-.273-.099-.471-.148-.67.15-.197.297-.767.966-.94 1.164-.173.199-.347.223-.644.075-.297-.15-1.255-.463-2.39-1.475-.883-.788-1.48-1.761-1.653-2.059-.173-.297-.018-.458.13-.606.134-.133.298-.347.446-.52.149-.174.198-.298.298-.497.099-.198.05-.371-.025-.52-.075-.149-.669-1.612-.916-2.207-.242-.579-.487-.5-.669-.51l-.57-.01c-.198 0-.52.074-.792.372-.272.297-1.04 1.016-1.04 2.479 0 1.462 1.065 2.875 1.213 3.074.149.198 2.096 3.2 5.077 4.487.709.306 1.262.489 1.694.625.712.227 1.36.195 1.871.118.571-.085 1.758-.719 2.006-1.413.248-.694.248-1.289.173-1.413-.074-.124-.272-.198-.57-.347z"/></svg>
@@ -198,6 +210,13 @@ export default function EstabelecimentoDetalhe() {
         {tab === 'cardapio' && <TabCardapio items={est.cardapio || []} />}
         {tab === 'fotos' && <TabFotos photos={photos} />}
       </div>
+
+      {/* Lead Gate Popup for WhatsApp */}
+      {showLeadGate && <LeadGatePopup store={est} onClose={() => setShowLeadGate(false)} onSuccess={(lead) => {
+        setShowLeadGate(false)
+        const msg = encodeURIComponent(`Olá! Vi vocês no Lupa SJC 🔍\n\nMeu nome: ${lead.nome}\nTelefone: ${lead.telefone}`)
+        window.open(`https://wa.me/55${est.whatsapp.replace(/\D/g, '')}?text=${msg}`, '_blank')
+      }} />}
 
     </div>
   )
@@ -436,6 +455,51 @@ function TabFotos({ photos }) {
           {p.legenda && <p className="text-[10px] text-gray-400 mt-1 px-1">{p.legenda}</p>}
         </div>
       ))}
+    </div>
+  )
+}
+
+// ===== LEAD GATE POPUP =====
+function LeadGatePopup({ store, onClose, onSuccess }) {
+  const [lead, setLead] = useState({ nome: '', telefone: '' })
+
+  const handleSubmit = () => {
+    if (!lead.nome || !lead.telefone) return
+    localStorage.setItem('lupa_lead', JSON.stringify(lead))
+    fetch(`${import.meta.env.VITE_API_URL || ''}/api/analytics/track`, {
+      method: 'POST', headers: { 'Content-Type': 'application/json' },
+      body: JSON.stringify({ estabelecimento_id: store?.id, evento: 'lead_captured', metadata: { nome: lead.nome, telefone: lead.telefone } }),
+    }).catch(() => {})
+    onSuccess(lead)
+  }
+
+  return (
+    <div className="fixed inset-0 z-[100] flex items-end sm:items-center justify-center" onClick={onClose}>
+      <div className="fixed inset-0 bg-black/50" />
+      <div className="relative bg-white rounded-t-2xl sm:rounded-2xl w-full sm:max-w-md max-h-[85vh] overflow-y-auto" onClick={e => e.stopPropagation()}>
+        <button onClick={onClose} className="absolute top-3 right-3 w-8 h-8 bg-gray-100 rounded-full flex items-center justify-center text-gray-400 z-10">
+          <svg className="w-4 h-4" fill="none" stroke="currentColor" strokeWidth={2} viewBox="0 0 24 24"><path strokeLinecap="round" strokeLinejoin="round" d="M6 18L18 6M6 6l12 12" /></svg>
+        </button>
+        <div className="p-5">
+          <h3 className="text-lg font-bold text-lupa-black text-center mb-1">Quase lá!</h3>
+          <p className="text-xs text-gray-400 text-center mb-4">Informe seus dados para continuar</p>
+          <div className="space-y-3">
+            <div>
+              <label className="text-[11px] text-gray-500 uppercase tracking-wider">Seu nome</label>
+              <input value={lead.nome} onChange={e => setLead({ ...lead, nome: e.target.value })} placeholder="Como podemos te chamar?" className="w-full px-3 py-2.5 rounded-xl border border-gray-200 text-sm mt-1" />
+            </div>
+            <div>
+              <label className="text-[11px] text-gray-500 uppercase tracking-wider">WhatsApp</label>
+              <input value={lead.telefone} onChange={e => setLead({ ...lead, telefone: e.target.value })} placeholder="(12) 99999-9999" className="w-full px-3 py-2.5 rounded-xl border border-gray-200 text-sm mt-1" />
+            </div>
+          </div>
+          <button onClick={handleSubmit} disabled={!lead.nome || !lead.telefone} className="w-full py-3 bg-[#25D366] text-white font-bold rounded-xl text-sm mt-4 disabled:opacity-50 min-h-[44px] flex items-center justify-center gap-2">
+            <svg className="w-5 h-5" fill="white" viewBox="0 0 24 24"><path d="M17.472 14.382c-.297-.149-1.758-.867-2.03-.967-.273-.099-.471-.148-.67.15-.197.297-.767.966-.94 1.164-.173.199-.347.223-.644.075-.297-.15-1.255-.463-2.39-1.475-.883-.788-1.48-1.761-1.653-2.059-.173-.297-.018-.458.13-.606.134-.133.298-.347.446-.52.149-.174.198-.298.298-.497.099-.198.05-.371-.025-.52-.075-.149-.669-1.612-.916-2.207-.242-.579-.487-.5-.669-.51l-.57-.01c-.198 0-.52.074-.792.372-.272.297-1.04 1.016-1.04 2.479 0 1.462 1.065 2.875 1.213 3.074.149.198 2.096 3.2 5.077 4.487.709.306 1.262.489 1.694.625.712.227 1.36.195 1.871.118.571-.085 1.758-.719 2.006-1.413.248-.694.248-1.289.173-1.413-.074-.124-.272-.198-.57-.347z"/><path d="M12 0C5.373 0 0 5.373 0 12c0 2.116.553 4.1 1.519 5.826L.053 23.664l5.96-1.56A11.93 11.93 0 0012 24c6.627 0 12-5.373 12-12S18.627 0 12 0zm0 21.82c-1.965 0-3.83-.528-5.47-1.528l-.392-.233-3.538.927.944-3.45-.256-.406A9.794 9.794 0 012.18 12c0-5.422 4.398-9.82 9.82-9.82 5.422 0 9.82 4.398 9.82 9.82 0 5.422-4.398 9.82-9.82 9.82z"/></svg>
+            Continuar para o WhatsApp
+          </button>
+          <p className="text-[9px] text-gray-400 text-center mt-2">Seus dados serão usados apenas para enviar ofertas relevantes</p>
+        </div>
+      </div>
     </div>
   )
 }
