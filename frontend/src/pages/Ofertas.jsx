@@ -95,22 +95,22 @@ function PromoCard({ promo, onSelect }) {
       {/* Info right */}
       <div className="p-3 flex-1 flex flex-col min-w-0">
         <h3 className="font-bold text-sm text-lupa-black line-clamp-2 leading-tight">{promo.titulo}</h3>
-        <div className="flex items-center gap-1.5 mt-1">
-          <img src={est.logo_url || placeholder} alt="" className="w-5 h-5 rounded-full object-cover" />
-          <span className="text-[11px] text-gray-400 truncate">{est.nome}</span>
+        <div className="flex items-center gap-2 mt-1.5">
+          <img src={est.logo_url || placeholder} alt="" className="w-7 h-7 rounded-full object-cover border border-gray-100" />
+          <span className="text-xs font-medium text-gray-500 truncate">{est.nome}</span>
         </div>
-        <div className="mt-auto pt-1.5">
+        <div className="mt-auto pt-2">
           <div className="flex items-center gap-2">
             {promo.valor_desconto && promo.tipo_promo === 'percentage' && (
-              <span className="px-1.5 py-0.5 bg-tauste-orange text-white text-[10px] font-bold rounded">-{promo.valor_desconto}%</span>
+              <span className="px-2 py-0.5 bg-tauste-orange text-white text-sm font-bold rounded">-{promo.valor_desconto}%</span>
             )}
-            {promo.preco_de && <span className="text-[10px] text-gray-400 line-through">R$ {Number(promo.preco_de).toFixed(2)}</span>}
-            {promo.preco_por && <span className="text-sm font-bold text-tauste-orange">R$ {Number(promo.preco_por).toFixed(2)}</span>}
+            {promo.preco_de && <span className="text-xs text-gray-400 line-through">R$ {Number(promo.preco_de).toFixed(2)}</span>}
+            {promo.preco_por && <span className="text-base font-bold text-tauste-orange">R$ {Number(promo.preco_por).toFixed(2)}</span>}
             {!promo.preco_por && promo.valor_desconto && promo.tipo_promo === 'fixed_value' && (
-              <span className="text-sm font-bold text-tauste-orange">R$ {Number(promo.valor_desconto).toFixed(2)}</span>
+              <span className="text-base font-bold text-tauste-orange">R$ {Number(promo.valor_desconto).toFixed(2)}</span>
             )}
           </div>
-          <span className="inline-flex items-center justify-center px-3 py-1.5 mt-1.5 btn-gold text-[10px] font-bold rounded-md float-right">Ver oferta</span>
+          <span className="inline-flex items-center justify-center w-full py-2 mt-2 btn-gold text-xs font-bold rounded-lg">Ver oferta</span>
         </div>
       </div>
     </button>
